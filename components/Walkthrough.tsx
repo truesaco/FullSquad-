@@ -1,0 +1,231 @@
+"use client";
+
+import { useRef, useState, type KeyboardEvent } from "react";
+import { Icon } from "./icons";
+import { PostGameButton } from "./PostGame";
+import { GameOnBadge, PhoneFrame, RosterMeter } from "./ui";
+import { track } from "@/lib/track";
+
+const STEPS = [
+  { title: "Post what you need.", body: 'Day, place, format, and "keeper preferred." One post.' },
+  { title: "Crew and matched players fill in.", body: "Your regulars see it first, then nearby players who fit." },
+  { title: "Overflow goes to the waitlist.", body: "Sign-up order, visible to everyone. Nobody gets cut by you." },
+  { title: "A dropout gets backfilled.", body: "The next player taps In. You find out after it's handled." },
+];
+
+function Row({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="flex items-center justify-between border-b border-line py-2.5 text-sm">
+      <span className="text-muted">{k}</span>
+      <span className="font-semibold">{v}</span>
+    </div>
+  );
+}
+
+function GameHeader({ count }: { count: number }) {
+  return (
+    <>
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="font-bold">Wednesday Run</p>
+          <p className="text-xs text-muted">Wed 7:30 PM · Piccolo Park · 7v7</p>
+        </div>
+        {count >= 14 ? <GameOnBadge /> : null}
+      </div>
+      <p className="mt-3 font-bold tabular">
+        <span className="text-4xl">{count}</span>
+        <span className="text-muted">/14</span>
+      </p>
+      <RosterMeter filled={count} total={14} className="mt-2" />
+    </>
+  );
+}
+
+function Screen({ step }: { step: number }) {
+  if (step === 0)
+    return (
+      <div className="anim-slide p-4">
+        <p className="font-serif text-xl">Post a game</p>
+        <div className="mt-3">
+          <Row k="When" v="Wed 7:30 PM" />
+          <Row k="Where" v="Piccolo Park" />
+          <Row k="Need" v="14 players" />
+          <Row k="Note" v="Keeper preferred" />
+        </div>
+        <div className="mt-4 grid grid-cols-4 gap-1 rounded-lg bg-bg-alt p-1 text-center text-xs font-semibold">
+          {["5v5", "7v7", "8v8", "11v11"].map((f) => (
+            <span key={f} className={`rounded-md py-2 ${f === "7v7" ? "bg-turf text-white" : "text-muted"}`}>
+              {f}
+            </span>
+          ))}
+        </div>
+        <span className="btn btn-primary mt-5 w-full">Post to crew</span>
+      </div>
+    );
+  if (step === 1) {
+    const people: [string, string, "Crew" | "Matched"][] = [
+      ["Diego", "MID", "Crew"],
+      ["Marco", "DEF", "Crew"],
+      ["Kevin", "FWD", "Crew"],
+      ["Andrés", "MID", "Crew"],
+      ["Tomás", "GK", "Matched"],
+      ["Rafa", "MID", "Matched"],
+    ];
+    return (
+      <div className="anim-slide p-4">
+        <GameHeader count={11} />
+        <ul className="mt-4 grid gap-1.5">
+          {people.map(([n, p, s]) => (
+            <li key={n} className="flex items-center justify-between rounded-lg bg-bg-alt px-3 py-2 text-sm">
+              <span className="font-semibold">
+                {n} <span className="pos ml-1">{p}</span>
+              </span>
+              <span className={`text-xs font-bold ${s === "Crew" ? "text-accent" : "text-info"}`}>{s}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 text-center text-xs text-muted">8 from your crew · 3 matched nearby</p>
+      </div>
+    );
+  }
+  if (step === 2)
+    return (
+      <div className="anim-slide p-4">
+        <GameHeader count={14} />
+        <p className="caption mt-5 text-muted">Waitlist · auto-promotes</p>
+        <ol className="mt-2 grid gap-1.5">
+          {[
+            ["Luis", "Next up"],
+            ["Santi", "#2"],
+            ["Beto", "#3"],
+          ].map(([n, s], i) => (
+            <li key={n} className="flex items-center justify-between rounded-lg bg-bg-alt px-3 py-2 text-sm">
+              <span>
+                <span className="mr-2 font-bold text-muted">#{i + 1}</span>
+                <span className="font-semibold">{n}</span>
+              </span>
+              <span className="text-xs font-semibold text-info">{s}</span>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-3 text-center text-xs text-muted">0 &ldquo;sorry, we&apos;re full&rdquo; texts sent</p>
+      </div>
+    );
+  return (
+    <div className="anim-slide p-4">
+      <GameHeader count={14} />
+      <ul className="mt-4 grid gap-1.5 text-sm">
+        <li className="flex items-center justify-between rounded-lg bg-bg-alt px-3 py-2 line-through opacity-60">
+          <span className="font-semibold">Andrés</span>
+          <span className="text-xs">Dropped</span>
+        </li>
+        <li className="flex items-center justify-between rounded-lg bg-mint/25 px-3 py-2 ring-1 ring-mint">
+          <span className="font-semibold">Luis</span>
+          <span className="text-xs font-bold text-accent">Tapped In</span>
+        </li>
+      </ul>
+      <div className="anim-toast mt-5 flex items-center gap-2.5 rounded-xl bg-[#0f1b2d] px-3 py-2.5 text-white">
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-mint text-[#0f1b2d]">
+          <Icon name="check" className="size-4" strokeWidth={3} />
+        </span>
+        <span className="text-[13px] leading-tight">
+          <span className="block font-bold">Andrés dropped · Luis is in</span>
+          <span className="text-white/70">Spot filled. You&apos;re good.</span>
+        </span>
+      </div>
+    </div>
+  );
+}
+
+export function Walkthrough() {
+  const [step, setStep] = useState(0);
+  const tabs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const go = (i: number, focus = false) => {
+    const n = (i + STEPS.length) % STEPS.length;
+    setStep(n);
+    track("walkthrough_step", { step: n + 1 });
+    if (focus) tabs.current[n]?.focus();
+  };
+
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+      e.preventDefault();
+      go(step + 1, true);
+    } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      go(step - 1, true);
+    }
+  };
+
+  return (
+    <section id="walkthrough" className="section" aria-labelledby="walkthrough-title">
+      <div className="container-x">
+        <div className="reveal mx-auto mb-12 max-w-3xl text-center">
+          <h2 id="walkthrough-title" className="h2">
+            See FullSquad in Action
+          </h2>
+          <p className="mt-3 text-lg text-muted">Four steps. Tap through them.</p>
+        </div>
+        <div className="grid items-center gap-10 md:grid-cols-2">
+          <div className="reveal grid gap-3">
+          <div role="tablist" aria-label="Walkthrough steps" aria-orientation="vertical" className="grid gap-3" onKeyDown={onKey}>
+            {STEPS.map((s, i) => (
+              <button
+                key={s.title}
+                ref={(el) => {
+                  tabs.current[i] = el;
+                }}
+                role="tab"
+                id={`wt-tab-${i}`}
+                aria-selected={step === i}
+                aria-controls="wt-panel"
+                tabIndex={step === i ? 0 : -1}
+                onClick={() => go(i)}
+                className={`flex gap-4 rounded-xl border p-5 text-left transition-colors duration-300 ${
+                  step === i ? "border-primary bg-tint" : "border-line hover:bg-bg-alt"
+                }`}
+              >
+                <span
+                  className={`flex size-9 shrink-0 items-center justify-center rounded-full font-bold ${
+                    step === i ? "bg-turf text-white" : "bg-bg-alt text-muted"
+                  }`}
+                >
+                  {i + 1}
+                </span>
+                <span>
+                  <span className="block text-lg font-bold">{s.title}</span>
+                  <span className="block text-muted">{s.body}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => go(step + 1)}>
+                {step === STEPS.length - 1 ? "Start over" : "Next step"} <Icon name="arrowRight" className="size-4" />
+              </button>
+            </div>
+          </div>
+          <div id="wt-panel" role="tabpanel" aria-labelledby={`wt-tab-${step}`} aria-live="polite" className="reveal">
+            <p className="sr-only">
+              Step {step + 1}: {STEPS[step].title} {STEPS[step].body}
+            </p>
+            <div aria-hidden="true">
+              <PhoneFrame>
+                <div className="min-h-[430px]">
+                  <Screen key={step} step={step} />
+                </div>
+              </PhoneFrame>
+            </div>
+          </div>
+        </div>
+        <p className="reveal mt-12 text-center text-lg">
+          Ready to try it with your crew?{" "}
+          <PostGameButton loc="walkthrough" className="font-semibold text-accent underline-offset-4 hover:underline">
+            Post your first game →
+          </PostGameButton>
+        </p>
+      </div>
+    </section>
+  );
+}
