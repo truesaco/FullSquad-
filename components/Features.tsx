@@ -21,7 +21,7 @@ function PostVisual() {
     <Visual>
       <div className="card p-4">
         <p className="caption text-muted">Diego posted</p>
-        <p className="mt-1 font-semibold">Sun 8:30 at Piccolo. 7v7. Need 2, keeper preferred.</p>
+        <p className="mt-1 font-semibold">Sun 8:30 at Piccolo. 7v7. Need 3: 1 GK · 1 DEF · 1 any position.</p>
       </div>
       <ol className="mt-4 grid gap-3">
         <li className="card flex items-center gap-3 !border-2 !border-mint p-3">
@@ -174,11 +174,11 @@ const FEATURES: { n: string; title: string; body: string; metric: string; icon: 
   {
     n: "02",
     title: "Position & skill matching",
-    body: 'Matching uses position, skill, distance, and attendance history. A "keeper preferred" post reaches actual keepers.',
+    body: "Toggle the positions you need (keeper, defender, midfielder, forward) or leave it open to anyone. Matching uses position, skill, distance, and attendance history, so each spot reaches players who actually fit it.",
     metric: "4 signals",
     icon: "sliders",
     visual: <MatchVisual />,
-    alt: "A matched keeper card showing position, skill, distance and attendance",
+    alt: "A matched player card showing position, skill, distance and attendance",
   },
   {
     n: "03",

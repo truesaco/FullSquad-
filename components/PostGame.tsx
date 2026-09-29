@@ -5,6 +5,9 @@ import { Icon } from "./icons";
 import { GameOnBadge, RosterMeter } from "./ui";
 import { WaitlistForm } from "./WaitlistForm";
 import { FORMATS } from "@/lib/content";
+import { describeNeeds, emptyNeeds, fitNeeds } from "@/lib/positions";
+import { PositionNeeds } from "./PositionNeeds";
+import { saveDraft } from "@/lib/demo/draft";
 import { track } from "@/lib/track";
 
 type Ctx = { open: (source: string) => void };
@@ -102,23 +105,25 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
   const [format, setFormat] = useState<(typeof FORMATS)[number]["id"]>("7v7");
   const size = FORMATS.find((f) => f.id === format)!.size;
   const [have, setHave] = useState(12);
-  const [keeper, setKeeper] = useState(true);
+  const [needSpec, setNeedSpec] = useState(() => ({ ...emptyNeeds(), GK: 1 }));
   const [level, setLevel] = useState("All levels");
   const [copied, setCopied] = useState(false);
 
   const inCount = Math.min(have, size);
   const need = Math.max(0, size - inCount);
+  const needs = fitNeeds(needSpec, need);
 
   const message = useMemo(() => {
     const lines = [
       `⚽ ${name || "Pickup game"} — ${day.slice(0, 3)} ${to12h(time)} @ ${place || "TBD"}`,
-      `${format} · ${inCount}/${size} in · ${need > 0 ? `Need ${need}` : "Full, waitlist open"}${keeper ? " · 🧤 keeper preferred" : ""}`,
+      `${format} · ${inCount}/${size} in · ${need > 0 ? `Need ${need}` : "Full, waitlist open"}`,
+      ...(need > 0 ? [`Looking for: ${describeNeeds(needs)}`] : []),
       level !== "All levels" ? `Level: ${level}` : "All levels welcome",
       "",
       `Reply "IN" to grab a spot. First come, first in. Overflow goes on the waitlist in order, no hard feelings.`,
     ];
     return lines.join("\n");
-  }, [name, day, time, place, format, inCount, size, need, keeper, level]);
+  }, [name, day, time, place, format, inCount, size, need, needs, level]);
 
   async function copy() {
     try {
@@ -162,7 +167,7 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
             onSubmit={(e) => {
               e.preventDefault();
               setStep("share");
-              track("game_post_preview", { format, need, keeper, location: source });
+              track("game_post_preview", { format, need, needs: describeNeeds(needs), location: source });
             }}
           >
             <div>
@@ -248,21 +253,16 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
                 </button>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <label className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border border-line px-3 text-sm font-medium">
-                <input type="checkbox" className="size-5 accent-[#0b6e4f]" checked={keeper} onChange={(e) => setKeeper(e.target.checked)} />
-                Keeper preferred
+            <PositionNeeds total={need} value={needSpec} onChange={setNeedSpec} idPrefix={`${uid}-need`} />
+            <div>
+              <label htmlFor={`${uid}-level`} className="mb-1.5 block text-sm font-medium">
+                Skill level
               </label>
-              <div>
-                <label htmlFor={`${uid}-level`} className="sr-only">
-                  Skill level
-                </label>
-                <select id={`${uid}-level`} className="input" value={level} onChange={(e) => setLevel(e.target.value)}>
-                  {LEVELS.map((l) => (
-                    <option key={l}>{l}</option>
-                  ))}
-                </select>
-              </div>
+              <select id={`${uid}-level`} className="input" value={level} onChange={(e) => setLevel(e.target.value)}>
+                {LEVELS.map((l) => (
+                  <option key={l}>{l}</option>
+                ))}
+              </select>
             </div>
             <button type="submit" className="btn btn-primary w-full">
               Preview my post <Icon name="arrowRight" />
@@ -286,6 +286,20 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
                 Edit game
               </button>
             </div>
+            <a
+              href="/app/#/games"
+              onClick={() => {
+                saveDraft({ title: name, day, time, place, format, have: inCount, needs, level });
+                track("app_demo_open", { location: "post_builder" });
+              }}
+              className="flex items-center justify-between gap-3 rounded-xl border-2 border-primary bg-tint p-4 font-semibold text-accent hover:brightness-95"
+            >
+              <span>
+                See this game run in the app demo
+                <span className="block text-sm font-normal text-muted">Watch it fill by position, then handle a dropout.</span>
+              </span>
+              <Icon name="arrowRight" className="size-5 shrink-0" />
+            </a>
             <p className="sr-only" aria-live="polite">
               {copied ? "Message copied to clipboard" : ""}
             </p>
@@ -339,8 +353,8 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
             <RosterMeter filled={inCount} total={size} className="mt-3" />
             <ul className="mt-4 grid gap-2 text-sm">
               <li className="flex justify-between">
-                <span className="text-muted">Keeper</span>
-                <span className="font-medium">{keeper ? "Wanted" : "Not needed"}</span>
+                <span className="text-muted">Looking for</span>
+                <span className="text-right font-medium">{need > 0 ? describeNeeds(needs, { short: true }) : "Waitlist only"}</span>
               </li>
               <li className="flex justify-between">
                 <span className="text-muted">Level</span>

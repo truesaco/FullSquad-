@@ -11,7 +11,7 @@ const COLS = ["Group chat", "Pay-to-play pickup apps", "Hosting & ticketing apps
 const ROWS: { label: string; cells: Cell[] }[] = [
   { label: "Free for every player", cells: [y(), n("Pay per game"), p("Organizer sets a price, plus fees"), y("$0 forever")] },
   { label: "Your own crew gets first dibs", cells: [y(), n("Open to strangers"), p("Varies"), y("Crew first, then nearby")] },
-  { label: "Fills by position and skill", cells: [n(), p("Skill labels at most"), n(), y("Keeper preferred reaches keepers")] },
+  { label: "Fills by position and skill", cells: [n(), p("Skill labels at most"), n(), y("Pick any position, or anyone")] },
   { label: "Automatic, visible waitlist", cells: [n("Manual cuts"), y(), y(), y("Sign-up order, visible to all")] },
   { label: "Dropouts backfilled with a timed rollover", cells: [n("You beg on the thread"), p("First to grab it"), p("Auto-promote"), y("One tap, auto-rolls")] },
   { label: "Crew joins from a link, no download", cells: [y(), n("App required"), p("Varies"), y("Works in any chat")] },

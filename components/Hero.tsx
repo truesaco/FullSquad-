@@ -40,8 +40,8 @@ export function Hero() {
             <PostGameButton loc="hero" className="btn btn-primary btn-lg">
               Post Your First Game
             </PostGameButton>
-            <a href="#how-it-works" className="btn btn-secondary btn-lg" data-cta="see_how" data-loc="hero">
-              See How It Works
+            <a href="/app/" className="btn btn-secondary btn-lg" data-cta="app_demo" data-loc="hero">
+              Try the App Demo
             </a>
           </div>
           <p className="mt-4 text-sm text-muted">Free for players • No payment setup • Set up in under 5 minutes</p>

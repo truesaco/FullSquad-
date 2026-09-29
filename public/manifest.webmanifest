@@ -2,7 +2,7 @@
   "name": "FullSquad",
   "short_name": "FullSquad",
   "description": "Pickup soccer games that fill themselves.",
-  "start_url": "/",
+  "start_url": "/app/",
   "display": "standalone",
   "background_color": "#0A1220",
   "theme_color": "#0B6E4F",

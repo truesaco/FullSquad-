@@ -10,6 +10,7 @@ const LINKS = [
   { href: "#time-back", label: "Time Back" },
   { href: "#pricing", label: "Pricing" },
   { href: "#leagues", label: "Leagues" },
+  { href: "/app/", label: "Try the App" },
 ];
 
 export function ThemeToggle({ className = "" }: { className?: string }) {
@@ -77,7 +78,7 @@ export function Nav() {
             <span>FullSquad</span>
           </a>
 
-          <ul className="hidden items-center gap-1 lg:flex">
+          <ul className="hidden items-center gap-1 whitespace-nowrap xl:flex">
             {LINKS.map((l) => (
               <li key={l.href}>
                 <a href={l.href} className="rounded-md px-3 py-2 text-[15px] font-medium text-fg/80 hover:bg-bg-alt hover:text-fg">
@@ -89,7 +90,7 @@ export function Nav() {
 
           <div className="flex items-center gap-1 sm:gap-2">
             <ThemeToggle />
-            <a href="#waitlist" className="hidden px-3 py-2 text-[15px] font-medium hover:text-accent sm:inline" data-cta="sign_in" data-loc="nav">
+            <a href="#waitlist" className="hidden whitespace-nowrap px-3 py-2 text-[15px] font-medium hover:text-accent sm:inline" data-cta="sign_in" data-loc="nav">
               Sign In
             </a>
             <PostGameButton loc="nav" className="btn btn-primary btn-sm hidden sm:inline-flex">
@@ -97,7 +98,7 @@ export function Nav() {
             </PostGameButton>
             <button
               type="button"
-              className="flex size-11 items-center justify-center rounded-full hover:bg-bg-alt lg:hidden"
+              className="flex size-11 items-center justify-center rounded-full hover:bg-bg-alt xl:hidden"
               aria-expanded={open}
               aria-controls="mobile-drawer"
               aria-label={open ? "Close menu" : "Open menu"}
@@ -110,7 +111,7 @@ export function Nav() {
       </header>
       {/* Mobile slide-out drawer */}
       <div
-        className={`fixed inset-0 top-[60px] z-[1001] lg:hidden ${open ? "visible" : "invisible"}`}
+        className={`fixed inset-0 top-[60px] z-[1001] lg:top-[72px] xl:hidden ${open ? "visible" : "invisible"}`}
         aria-hidden={!open}
       >
         <div

@@ -9,6 +9,7 @@ import { Story } from "@/components/Story";
 import { Pricing } from "@/components/Pricing";
 import { Trust } from "@/components/Trust";
 import { Walkthrough } from "@/components/Walkthrough";
+import { AppPreview } from "@/components/AppPreview";
 import { FinalCTA } from "@/components/FinalCTA";
 import { Footer } from "@/components/Footer";
 import { MobileFab } from "@/components/MobileFab";
@@ -58,6 +59,7 @@ export default function Home() {
         <Pricing />
         <Trust />
         <Walkthrough />
+        <AppPreview />
         <FinalCTA />
       </main>
       <Footer />

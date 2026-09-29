@@ -12,6 +12,10 @@ export const FAQS = [
     a: "Yes. Player and Organizer are free forever. When Organizer Pro launches you can try it, and drop back to free any time without losing your crew or your games.",
   },
   {
+    q: "Do I have to say which positions I need?",
+    a: "No. Leave it on \"Any position\" and anyone who fits your level can grab a spot. Or toggle exactly what you're short on, like 1 keeper and 2 defenders, and the rest stay open to anyone.",
+  },
+  {
     q: "What if my crew won't download another app?",
     a: "They don't have to. Every game gets a link you drop into the chat you already use. Your crew taps it, says In or Pass, and they're on the roster or the waitlist.",
   },

@@ -7,7 +7,7 @@ import { GameOnBadge, PhoneFrame, RosterMeter } from "./ui";
 import { track } from "@/lib/track";
 
 const STEPS = [
-  { title: "Post what you need.", body: 'Day, place, format, and "keeper preferred." One post.' },
+  { title: "Post what you need.", body: "Day, place, format, and which positions you need, or anyone. One post." },
   { title: "Crew and matched players fill in.", body: "Your regulars see it first, then nearby players who fit." },
   { title: "Overflow goes to the waitlist.", body: "Sign-up order, visible to everyone. Nobody gets cut by you." },
   { title: "A dropout gets backfilled.", body: "The next player taps In. You find out after it's handled." },
@@ -50,7 +50,7 @@ function Screen({ step }: { step: number }) {
           <Row k="When" v="Wed 7:30 PM" />
           <Row k="Where" v="Piccolo Park" />
           <Row k="Need" v="14 players" />
-          <Row k="Note" v="Keeper preferred" />
+          <Row k="Positions" v="1 GK · 1 DEF · any" />
         </div>
         <div className="mt-4 grid grid-cols-4 gap-1 rounded-lg bg-bg-alt p-1 text-center text-xs font-semibold">
           {["5v5", "7v7", "8v8", "11v11"].map((f) => (
