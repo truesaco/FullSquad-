@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "./icons";
 import { Avatar, GameOnBadge, PhoneFrame, RosterMeter } from "./ui";
+import { useLang } from "@/lib/i18n";
 
 const ROSTER: [string, string][] = [
   ["Diego", "MID"],
@@ -40,6 +41,7 @@ const FINAL = TIMELINE[TIMELINE.length - 1][0];
 
 export function HeroPhone() {
   const [idx, setIdx] = useState(TIMELINE.length - 1);
+  const { tr } = useLang();
   const [paused, setPaused] = useState(false);
   const [visible, setVisible] = useState(true);
   const [reduced, setReduced] = useState(false);
@@ -73,21 +75,23 @@ export function HeroPhone() {
   return (
     <div ref={rootRef} className="relative">
       <p className="sr-only">
-        Animated example: a Fullsquad game card for the Wednesday Run fills from 3 to 14 of 14 players and shows Game On. Two players join the
-        waitlist. When Andrés drops, Luis is automatically promoted from the waitlist.
+        {tr(
+          "Animated example: a Fullsquad game card for the Wednesday Run fills from 3 to 14 of 14 players and shows Game On. Two players join the waitlist. When Andrés drops, Luis is automatically promoted from the waitlist.",
+          "Ejemplo animado: la tarjeta de un partido en Fullsquad se llena de 3 a 14 de 14 jugadores y muestra ¡A jugar! Dos jugadores entran a la lista de espera. Cuando Andrés se baja, Luis sube automáticamente desde la lista de espera.",
+        )}
       </p>
       <div aria-hidden="true">
         <PhoneFrame>
           <div className="px-4 pb-5">
             <div className="flex items-center justify-between py-2">
-              <p className="font-serif text-xl">My Games</p>
+              <p className="font-serif text-xl">{tr("My Games", "Mis partidos")}</p>
               <Avatar name="Diego R" className="size-7 text-[10px]" />
             </div>
             <div className="rounded-2xl border border-line bg-surface p-3.5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-[15px] font-bold leading-tight">Wednesday Run</p>
-                  <p className="text-[11px] text-muted">Wed 7:30 PM · Brian Piccolo Park</p>
+                  <p className="text-[15px] font-bold leading-tight">{tr("Wednesday Run", "Fútbol del miércoles")}</p>
+                  <p className="text-[11px] text-muted">{tr("Wed", "Mié")} 7:30 PM · Brian Piccolo Park</p>
                 </div>
                 <span className="pos">7v7</span>
               </div>
@@ -100,7 +104,7 @@ export function HeroPhone() {
                   <GameOnBadge className="anim-pop" />
                 ) : (
                   <span className="flex items-center gap-1.5 text-[11px] font-semibold text-muted">
-                    <span className="live-dot" /> Filling
+                    <span className="live-dot" /> {tr("Filling", "Llenando")}
                   </span>
                 )}
               </div>
@@ -122,14 +126,14 @@ export function HeroPhone() {
                           <span className="pos !min-w-0 !bg-transparent !p-0 !text-[9px]">{p[1]}</span>
                         </>
                       ) : (
-                        <span className="text-muted/70">Open</span>
+                        <span className="text-muted/70">{tr("Open", "Libre")}</span>
                       )}
                     </li>
                   );
                 })}
               </ul>
               <div className="mt-3 min-h-[46px] border-t border-line pt-2">
-                <p className="text-[9px] font-bold tracking-[0.1em] text-muted">WAITLIST · AUTO-PROMOTES</p>
+                <p className="text-[9px] font-bold tracking-[0.1em] text-muted">{tr("WAITLIST · AUTO-PROMOTES", "LISTA DE ESPERA · SUBE SOLA")}</p>
                 <ul className="mt-1 grid gap-1">
                   {waitlist.map(([n, p], i) => (
                     <li key={n} className="anim-slide flex items-center justify-between text-[11px]">
@@ -150,8 +154,8 @@ export function HeroPhone() {
                     <Icon name="check" className="size-4" strokeWidth={3} />
                   </span>
                   <span className="leading-tight">
-                    <span className="block text-[12px] font-bold">Andrés dropped · Luis is in</span>
-                    <span className="block text-[11px] text-white/70">Spot filled. You&apos;re good.</span>
+                    <span className="block text-[12px] font-bold">{tr("Andrés dropped · Luis is in", "Andrés se bajó · Luis entra")}</span>
+                    <span className="block text-[11px] text-white/70">{tr("Spot filled. You're good.", "Cupo lleno. Todo listo.")}</span>
                   </span>
                 </div>
               ) : null}
@@ -164,7 +168,7 @@ export function HeroPhone() {
           type="button"
           onClick={() => setPaused((p) => !p)}
           className="absolute -bottom-2 right-2 flex size-11 items-center justify-center rounded-full border border-line bg-surface shadow-md hover:bg-bg-alt sm:right-8"
-          aria-label={paused ? "Play the game card animation" : "Pause the game card animation"}
+          aria-label={paused ? tr("Play the game card animation", "Reproducir la animación") : tr("Pause the game card animation", "Pausar la animación")}
         >
           <Icon name={paused ? "play" : "pause"} className="size-4" />
         </button>

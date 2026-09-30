@@ -9,6 +9,7 @@ import { describeNeeds, emptyNeeds, fitNeeds } from "@/lib/positions";
 import { PositionNeeds } from "./PositionNeeds";
 import { saveDraft } from "@/lib/demo/draft";
 import { track } from "@/lib/track";
+import { useLang } from "@/lib/i18n";
 
 type Ctx = { open: (source: string) => void };
 const PostGameContext = createContext<Ctx>({ open: () => {} });
@@ -86,6 +87,16 @@ export function PostGameProvider({ children }: { children: ReactNode }) {
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const LEVELS = ["All levels", "Casual", "Intermediate", "Competitive"];
+const DAY_ES: Record<string, string> = {
+  Monday: "Lunes",
+  Tuesday: "Martes",
+  Wednesday: "Miércoles",
+  Thursday: "Jueves",
+  Friday: "Viernes",
+  Saturday: "Sábado",
+  Sunday: "Domingo",
+};
+const LEVEL_ES: Record<string, string> = { "All levels": "Todos los niveles", Casual: "Casual", Intermediate: "Intermedio", Competitive: "Competitivo" };
 
 function to12h(t: string) {
   const [h, m] = t.split(":").map(Number);
@@ -97,8 +108,12 @@ function to12h(t: string) {
 
 function PostGameBuilder({ onClose, source }: { onClose: () => void; source: string }) {
   const uid = useId();
+  const { tr, lang } = useLang();
+  const es = lang === "es";
+  const dayLabel = (d: string) => (es ? DAY_ES[d] ?? d : d);
+  const levelLabel = (l: string) => (es ? LEVEL_ES[l] ?? l : l);
   const [step, setStep] = useState<"build" | "share">("build");
-  const [name, setName] = useState("Sunday Run");
+  const [name, setName] = useState(() => tr("Sunday Run", "Fútbol del domingo"));
   const [day, setDay] = useState("Sunday");
   const [time, setTime] = useState("08:30");
   const [place, setPlace] = useState("Brian Piccolo Park");
@@ -115,15 +130,20 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
 
   const message = useMemo(() => {
     const lines = [
-      `⚽ ${name || "Pickup game"} — ${day.slice(0, 3)} ${to12h(time)} @ ${place || "TBD"}`,
-      `${format} · ${inCount}/${size} in · ${need > 0 ? `Need ${need}` : "Full, waitlist open"}`,
-      ...(need > 0 ? [`Looking for: ${describeNeeds(needs)}`] : []),
-      level !== "All levels" ? `Level: ${level}` : "All levels welcome",
+      `⚽ ${name || tr("Pickup game", "Partido")} — ${dayLabel(day).slice(0, 3)} ${to12h(time)} @ ${place || tr("TBD", "Por definir")}`,
+      es
+        ? `${format} · ${inCount}/${size} confirmados · ${need > 0 ? `Faltan ${need}` : "Lleno, lista de espera abierta"}`
+        : `${format} · ${inCount}/${size} in · ${need > 0 ? `Need ${need}` : "Full, waitlist open"}`,
+      ...(need > 0 ? [`${tr("Looking for", "Buscamos")}: ${describeNeeds(needs, { lang })}`] : []),
+      level !== "All levels" ? `${tr("Level", "Nivel")}: ${levelLabel(level)}` : tr("All levels welcome", "Todos los niveles son bienvenidos"),
       "",
-      `Reply "IN" to grab a spot. First come, first in. Overflow goes on the waitlist in order, no hard feelings.`,
+      tr(
+        `Reply "IN" to grab a spot. First come, first in. Overflow goes on the waitlist in order, no hard feelings.`,
+        `Responde "VOY" para apartar tu lugar. El que llega primero, entra. Los que sobran van a la lista de espera en orden, sin resentimientos.`,
+      ),
     ];
     return lines.join("\n");
-  }, [name, day, time, place, format, inCount, size, need, needs, level]);
+  }, [name, day, time, place, format, inCount, size, need, needs, level, lang]);
 
   async function copy() {
     try {
@@ -145,16 +165,16 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
     <div className="flex max-h-[inherit] flex-col">
       <div className="flex items-center justify-between gap-4 border-b border-line px-5 py-4 md:px-8">
         <div>
-          <p className="caption text-muted">{step === "build" ? "Step 1 of 2" : "Step 2 of 2"}</p>
+          <p className="caption text-muted">{step === "build" ? tr("Step 1 of 2", "Paso 1 de 2") : tr("Step 2 of 2", "Paso 2 de 2")}</p>
           <h2 id="post-game-title" className="text-xl font-bold">
-            {step === "build" ? "Post what your game needs" : "Drop it in the chat"}
+            {step === "build" ? tr("Post what your game needs", "Publica lo que le falta a tu partido") : tr("Drop it in the chat", "Pégalo en el chat")}
           </h2>
         </div>
         <button
           type="button"
           onClick={onClose}
           className="flex size-11 items-center justify-center rounded-full hover:bg-bg-alt"
-          aria-label="Close"
+          aria-label={tr("Close", "Cerrar")}
         >
           <Icon name="x" className="size-6" />
         </button>
@@ -172,36 +192,38 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
           >
             <div>
               <label htmlFor={`${uid}-name`} className="mb-1.5 block text-sm font-medium">
-                Game name
+                {tr("Game name", "Nombre del partido")}
               </label>
               <input id={`${uid}-name`} className="input" value={name} onChange={(e) => setName(e.target.value)} maxLength={40} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor={`${uid}-day`} className="mb-1.5 block text-sm font-medium">
-                  Day
+                  {tr("Day", "Día")}
                 </label>
                 <select id={`${uid}-day`} className="input" value={day} onChange={(e) => setDay(e.target.value)}>
                   {DAYS.map((d) => (
-                    <option key={d}>{d}</option>
+                    <option key={d} value={d}>
+                      {dayLabel(d)}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
                 <label htmlFor={`${uid}-time`} className="mb-1.5 block text-sm font-medium">
-                  Kickoff
+                  {tr("Kickoff", "Hora")}
                 </label>
                 <input id={`${uid}-time`} type="time" className="input" value={time} onChange={(e) => setTime(e.target.value)} />
               </div>
             </div>
             <div>
               <label htmlFor={`${uid}-place`} className="mb-1.5 block text-sm font-medium">
-                Where
+                {tr("Where", "Dónde")}
               </label>
               <input id={`${uid}-place`} className="input" value={place} onChange={(e) => setPlace(e.target.value)} maxLength={60} />
             </div>
             <fieldset>
-              <legend className="mb-1.5 text-sm font-medium">Format</legend>
+              <legend className="mb-1.5 text-sm font-medium">{tr("Format", "Formato")}</legend>
               <div className="grid grid-cols-4 gap-1 rounded-lg border border-line bg-bg-alt p-1">
                 {FORMATS.map((f) => (
                   <label
@@ -227,7 +249,7 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
             </fieldset>
             <div className="flex items-center justify-between gap-4">
               <span id={`${uid}-have-l`} className="text-sm font-medium">
-                Already confirmed
+                {tr("Already confirmed", "Ya confirmados")}
               </span>
               <div className="flex items-center gap-1" role="group" aria-labelledby={`${uid}-have-l`}>
                 <button
@@ -235,7 +257,7 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
                   className="flex size-11 items-center justify-center rounded-lg border border-line hover:bg-bg-alt disabled:opacity-40"
                   onClick={() => setHave((h) => Math.max(0, h - 1))}
                   disabled={inCount <= 0}
-                  aria-label="One fewer confirmed"
+                  aria-label={tr("One fewer confirmed", "Uno menos confirmado")}
                 >
                   <Icon name="minus" />
                 </button>
@@ -247,7 +269,7 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
                   className="flex size-11 items-center justify-center rounded-lg border border-line hover:bg-bg-alt disabled:opacity-40"
                   onClick={() => setHave((h) => Math.min(size, h + 1))}
                   disabled={inCount >= size}
-                  aria-label="One more confirmed"
+                  aria-label={tr("One more confirmed", "Uno más confirmado")}
                 >
                   <Icon name="plus" />
                 </button>
@@ -256,23 +278,27 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
             <PositionNeeds total={need} value={needSpec} onChange={setNeedSpec} idPrefix={`${uid}-need`} />
             <div>
               <label htmlFor={`${uid}-level`} className="mb-1.5 block text-sm font-medium">
-                Skill level
+                {tr("Skill level", "Nivel")}
               </label>
               <select id={`${uid}-level`} className="input" value={level} onChange={(e) => setLevel(e.target.value)}>
                 {LEVELS.map((l) => (
-                  <option key={l}>{l}</option>
+                  <option key={l} value={l}>
+                    {levelLabel(l)}
+                  </option>
                 ))}
               </select>
             </div>
             <button type="submit" className="btn btn-primary w-full">
-              Preview my post <Icon name="arrowRight" />
+              {tr("Preview my post", "Ver mi publicación")} <Icon name="arrowRight" />
             </button>
           </form>
         ) : (
           <div className="grid content-start gap-5">
             <p className="text-muted">
-              Here&apos;s a clean &ldquo;who&apos;s in?&rdquo; post for your crew. Paste it in the group chat today. It already beats a
-              thread of thumbs-ups.
+              {tr(
+                "Here's a clean “who's in?” post for your crew. Paste it in the group chat today. It already beats a thread of thumbs-ups.",
+                "Aquí tienes un mensaje limpio de “¿quién juega?” para tu grupo. Pégalo hoy en el chat. Ya es mejor que un hilo de pulgares arriba.",
+              )}
             </p>
             <pre className="whitespace-pre-wrap rounded-xl border border-line bg-[#e7f6ec] p-4 font-sans text-[15px] leading-relaxed text-[#1a1a18] dark:bg-[#12301f] dark:text-[#e8f5ed]">
               {message}
@@ -280,10 +306,10 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
             <div className="flex flex-wrap gap-3">
               <button type="button" onClick={copy} className="btn btn-primary">
                 <Icon name={copied ? "check" : "copy"} />
-                {copied ? "Copied" : "Copy for group chat"}
+                {copied ? tr("Copied", "Copiado") : tr("Copy for group chat", "Copiar para el chat")}
               </button>
               <button type="button" onClick={() => setStep("build")} className="btn btn-secondary">
-                Edit game
+                {tr("Edit game", "Editar partido")}
               </button>
             </div>
             <a
@@ -295,43 +321,47 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
               className="flex items-center justify-between gap-3 rounded-xl border-2 border-accent bg-tint p-4 font-semibold text-accent hover:brightness-95"
             >
               <span>
-                See this game run in the app demo
-                <span className="block text-sm font-normal text-muted">Watch it fill by position, then handle a dropout.</span>
+                {tr("See this game run in the app demo", "Mira este partido en la app demo")}
+                <span className="block text-sm font-normal text-muted">
+                  {tr("Watch it fill by position, then handle a dropout.", "Mira cómo se llena por posición y cómo se resuelve una baja.")}
+                </span>
               </span>
               <Icon name="arrowRight" className="size-5 shrink-0" />
             </a>
             <p className="sr-only" aria-live="polite">
-              {copied ? "Message copied to clipboard" : ""}
+              {copied ? tr("Message copied to clipboard", "Mensaje copiado") : ""}
             </p>
             <div className="rounded-xl border border-line bg-bg-alt p-5">
-              <p className="font-bold">Want Fullsquad to run this game for you?</p>
+              <p className="font-bold">{tr("Want Fullsquad to run this game for you?", "¿Quieres que Fullsquad organice este partido por ti?")}</p>
               <p className="mb-4 mt-1 text-sm text-muted">
-                We&apos;re opening organizer access area by area. Get one email when it&apos;s live near you. Then this post gets a join link,
-                a live roster, a fair waitlist, and one-tap backfills.
+                {tr(
+                  "We're opening organizer access area by area. Get one email when it's live near you. Then this post gets a join link, a live roster, a fair waitlist, and one-tap backfills.",
+                  "Estamos abriendo el acceso para organizadores zona por zona. Te mandamos un correo cuando llegue a la tuya. Entonces esta publicación tendrá link para unirse, lista en vivo, lista de espera justa y reemplazos con un toque.",
+                )}
               </p>
               <WaitlistForm
                 source={`post_game_${source}`}
                 compact
-                submitLabel="Save my organizer spot"
+                submitLabel={tr("Save my organizer spot", "Apartar mi lugar de organizador")}
                 extra={{ game: message.replace(/\n+/g, " | ") }}
               />
             </div>
           </div>
         )}
 
-        <aside aria-label="Live preview" className={step === "share" ? "hidden md:block" : ""}>
-          <p className="caption mb-3 text-muted">Live preview</p>
+        <aside aria-label={tr("Live preview", "Vista previa")} className={step === "share" ? "hidden md:block" : ""}>
+          <p className="caption mb-3 text-muted">{tr("Live preview", "Vista previa")}</p>
           <div className="card p-5">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="truncate text-lg font-bold">{name || "Pickup game"}</p>
+                <p className="truncate text-lg font-bold">{name || tr("Pickup game", "Partido")}</p>
                 <p className="flex items-center gap-1 text-sm text-muted">
                   <Icon name="calendar" className="size-4 shrink-0" />
-                  {day.slice(0, 3)} {to12h(time)}
+                  {dayLabel(day).slice(0, 3)} {to12h(time)}
                 </p>
                 <p className="flex items-center gap-1 truncate text-sm text-muted">
                   <Icon name="pin" className="size-4 shrink-0" />
-                  <span className="truncate">{place || "TBD"}</span>
+                  <span className="truncate">{place || tr("TBD", "Por definir")}</span>
                 </p>
               </div>
               <span className="pos shrink-0 !text-xs">{format}</span>
@@ -346,23 +376,23 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
               ) : (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-[#fef3c7] px-2.5 py-1 text-xs font-bold text-[#92400e]">
                   <Icon name="warning" className="size-3.5" />
-                  Need {need}
+                  {tr("Need", "Faltan")} {need}
                 </span>
               )}
             </div>
             <RosterMeter filled={inCount} total={size} className="mt-3" />
             <ul className="mt-4 grid gap-2 text-sm">
               <li className="flex justify-between">
-                <span className="text-muted">Looking for</span>
-                <span className="text-right font-medium">{need > 0 ? describeNeeds(needs, { short: true }) : "Waitlist only"}</span>
+                <span className="text-muted">{tr("Looking for", "Buscamos")}</span>
+                <span className="text-right font-medium">{need > 0 ? describeNeeds(needs, { short: true, lang }) : tr("Waitlist only", "Solo lista de espera")}</span>
               </li>
               <li className="flex justify-between">
-                <span className="text-muted">Level</span>
-                <span className="font-medium">{level}</span>
+                <span className="text-muted">{tr("Level", "Nivel")}</span>
+                <span className="font-medium">{levelLabel(level)}</span>
               </li>
               <li className="flex justify-between">
-                <span className="text-muted">Who sees it first</span>
-                <span className="font-medium">Your crew</span>
+                <span className="text-muted">{tr("Who sees it first", "Quién lo ve primero")}</span>
+                <span className="font-medium">{tr("Your crew", "Tu grupo")}</span>
               </li>
             </ul>
           </div>

@@ -7,6 +7,7 @@ Built from the Landing PRD, the Brand Identity & Design System, and the Research
 - **Brand:** Fullsquad logo system (1-4-4-2 formation mark, Sora wordmark; Pitch, Keeper, Chalk and Ink). See [`docs/brand.md`](docs/brand.md).
 - **Stack:** Next.js (static export), React, TypeScript, Tailwind CSS v4
 - **Responsive:** mobile-first from 360px phones through tablets to 1440px+ desktops, with a slide-out menu and a sticky "Post a Game" button on phones
+- **English / Spanish:** an EN | ES switch in the header (and in the app). It remembers the choice, picks Spanish automatically for Spanish-language phones, and `?lang=es` opens the Spanish version directly. All text lives next to its translation via `useLang()` in `lib/i18n.tsx`.
 - **Light and dark mode:** follows the system setting, with a toggle that remembers the choice
 - **Accessible:** skip link, visible focus rings, keyboard-navigable walkthrough tabs, `aria-live` updates for the calculator and roster, reduced-motion support, and status never shown by color alone
 - **Lead capture:** waitlist form backed by **Netlify Forms**, so there's no server to run

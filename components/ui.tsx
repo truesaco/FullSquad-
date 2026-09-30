@@ -1,4 +1,7 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { useLang } from "@/lib/i18n";
 import { Icon } from "./icons";
 
 /** Segmented roster bar; filled segments share one continuous brand gradient. */
@@ -13,6 +16,7 @@ export function RosterMeter({
   className?: string;
   size?: "sm" | "md";
 }) {
+  const { tr } = useLang();
   const h = size === "sm" ? "h-1.5" : "h-2";
   return (
     <div
@@ -21,7 +25,7 @@ export function RosterMeter({
       aria-valuemin={0}
       aria-valuemax={total}
       aria-valuenow={filled}
-      aria-label={`${filled} of ${total} spots filled`}
+      aria-label={tr(`${filled} of ${total} spots filled`, `${filled} de ${total} cupos llenos`)}
     >
       {Array.from({ length: total }, (_, i) => (
         <span
@@ -60,12 +64,13 @@ export function Avatar({ name, className = "size-8 text-xs" }: { name: string; c
 }
 
 export function GameOnBadge({ className = "" }: { className?: string }) {
+  const { tr } = useLang();
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full bg-turf px-2.5 py-1 text-[11px] font-bold tracking-wide text-white ${className}`}
     >
       <Icon name="check" className="size-3" strokeWidth={3} />
-      GAME ON
+      {tr("GAME ON", "¡A JUGAR!")}
     </span>
   );
 }

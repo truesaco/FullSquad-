@@ -4,10 +4,11 @@ import { useEffect, useId, useState, type FormEvent } from "react";
 import { Icon } from "@/components/icons";
 import { Avatar } from "@/components/ui";
 import { ThemeToggle } from "@/components/Nav";
+import { LangToggle } from "@/lib/i18n";
 import { PositionNeeds } from "@/components/PositionNeeds";
 import { FORMAT_SIZE, ME, involved, type Skill } from "@/lib/demo/model";
 import { POSITIONS, claimSlot, emptyNeeds, type Pos } from "@/lib/positions";
-import { GameCard, PlayerLine, PosToggles } from "./bits";
+import { GameCard, PlayerLine, PosToggles, useFmt } from "./bits";
 import { useApp } from "./store";
 
 export function ScreenTitle({ title, sub, action }: { title: string; sub?: string; action?: React.ReactNode }) {
@@ -25,6 +26,7 @@ export function ScreenTitle({ title, sub, action }: { title: string; sub?: strin
 // ---------- Feed ----------
 export function Feed() {
   const { s } = useApp();
+  const { tr } = useFmt();
   const me = s.players[ME];
   const [pos, setPos] = useState<Pos[]>(me.positions);
   const [onlyMine, setOnlyMine] = useState(false);
@@ -36,13 +38,13 @@ export function Feed() {
 
   return (
     <>
-      <ScreenTitle title="Games near you" sub="Broward County · within 10 mi" />
+      <ScreenTitle title={tr("Games near you", "Partidos cerca de ti")} sub={tr("Broward County · within 10 mi", "Condado de Broward · a menos de 10 mi")} />
       <div className="card mb-5 grid gap-3 p-4">
-        <p className="text-sm font-semibold">I can play</p>
-        <PosToggles value={pos} onChange={setPos} label="Positions I can play" />
+        <p className="text-sm font-semibold">{tr("I can play", "Puedo jugar de")}</p>
+        <PosToggles value={pos} onChange={setPos} label={tr("Positions I can play", "Posiciones que puedo jugar")} />
         <label className="flex min-h-11 cursor-pointer items-center justify-between gap-3 text-sm">
-          <span>Only show games that need me</span>
-          <Switch checked={onlyMine} onChange={setOnlyMine} label="Only show games that need me" />
+          <span>{tr("Only show games that need me", "Solo partidos que me necesitan")}</span>
+          <Switch checked={onlyMine} onChange={setOnlyMine} label={tr("Only show games that need me", "Solo partidos que me necesitan")} />
         </label>
       </div>
       {list.length ? (
@@ -54,7 +56,12 @@ export function Feed() {
           ))}
         </ul>
       ) : (
-        <Empty text="No games need those positions right now. Try another position, or join a waitlist." />
+        <Empty
+          text={tr(
+            "No games need those positions right now. Try another position, or join a waitlist.",
+            "Ningún partido necesita esas posiciones ahora. Prueba otra posición o entra a una lista de espera.",
+          )}
+        />
       )}
     </>
   );
@@ -63,19 +70,20 @@ export function Feed() {
 // ---------- My games ----------
 export function MyGames() {
   const { s } = useApp();
+  const { tr } = useFmt();
   const organizing = s.games.filter((g) => g.organizerId === ME);
   const playing = s.games.filter((g) => g.organizerId !== ME && involved(g, ME));
   return (
     <>
       <ScreenTitle
-        title="My Games"
+        title={tr("My Games", "Mis partidos")}
         action={
           <a href="#/post" className="btn btn-primary btn-sm">
-            <Icon name="plus" className="size-4" /> Post
+            <Icon name="plus" className="size-4" /> {tr("Post", "Publicar")}
           </a>
         }
       />
-      <h2 className="caption mb-2 text-muted">Organizing</h2>
+      <h2 className="caption mb-2 text-muted">{tr("Organizing", "Organizo")}</h2>
       {organizing.length ? (
         <ul className="grid gap-3 md:grid-cols-2">
           {organizing.map((g) => (
@@ -85,9 +93,12 @@ export function MyGames() {
           ))}
         </ul>
       ) : (
-        <Empty text="You're not organizing anything yet." cta={{ href: "#/post", label: "Post a game" }} />
+        <Empty
+          text={tr("You're not organizing anything yet.", "Todavía no organizas ningún partido.")}
+          cta={{ href: "#/post", label: tr("Post a game", "Publica un partido") }}
+        />
       )}
-      <h2 className="caption mb-2 mt-8 text-muted">Playing</h2>
+      <h2 className="caption mb-2 mt-8 text-muted">{tr("Playing", "Juego")}</h2>
       {playing.length ? (
         <ul className="grid gap-3 md:grid-cols-2">
           {playing.map((g) => (
@@ -97,7 +108,10 @@ export function MyGames() {
           ))}
         </ul>
       ) : (
-        <Empty text="Games you join or waitlist for show up here." cta={{ href: "#/feed", label: "Find a game" }} />
+        <Empty
+          text={tr("Games you join or waitlist for show up here.", "Aquí aparecen los partidos a los que te apuntas o donde esperas.")}
+          cta={{ href: "#/feed", label: tr("Find a game", "Buscar partido") }}
+        />
       )}
     </>
   );
@@ -113,8 +127,9 @@ function to12h(t: string) {
 
 export function PostScreen() {
   const { dispatch, go } = useApp();
+  const { tr, lang, day: dayLabel, level: levelLabel } = useFmt();
   const uid = useId();
-  const [title, setTitle] = useState("Friday Night Run");
+  const [title, setTitle] = useState(() => (lang === "es" ? "Fútbol del viernes" : "Friday Night Run"));
   const [day, setDay] = useState("Fri");
   const [time, setTime] = useState("19:30");
   const [place, setPlace] = useState("Brian Piccolo Park");
@@ -135,28 +150,30 @@ export function PostScreen() {
 
   return (
     <>
-      <ScreenTitle title="Post a game" sub="One post. Fullsquad does the chasing." />
+      <ScreenTitle title={tr("Post a game", "Publica un partido")} sub={tr("One post. Fullsquad does the chasing.", "Una publicación. Fullsquad se encarga del resto.")} />
       <form onSubmit={submit} className="card grid gap-5 p-5 md:p-6">
-        <Field id={`${uid}-t`} label="Game name">
+        <Field id={`${uid}-t`} label={tr("Game name", "Nombre del partido")}>
           <input id={`${uid}-t`} className="input" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={40} required />
         </Field>
         <div className="grid grid-cols-2 gap-4">
-          <Field id={`${uid}-d`} label="Day">
+          <Field id={`${uid}-d`} label={tr("Day", "Día")}>
             <select id={`${uid}-d`} className="input" value={day} onChange={(e) => setDay(e.target.value)}>
               {DAYS.map((d) => (
-                <option key={d}>{d}</option>
+                <option key={d} value={d}>
+                  {dayLabel(d)}
+                </option>
               ))}
             </select>
           </Field>
-          <Field id={`${uid}-tm`} label="Kickoff">
+          <Field id={`${uid}-tm`} label={tr("Kickoff", "Hora")}>
             <input id={`${uid}-tm`} type="time" className="input" value={time} onChange={(e) => setTime(e.target.value)} required />
           </Field>
         </div>
-        <Field id={`${uid}-p`} label="Where">
+        <Field id={`${uid}-p`} label={tr("Where", "Dónde")}>
           <input id={`${uid}-p`} className="input" value={place} onChange={(e) => setPlace(e.target.value)} maxLength={60} required />
         </Field>
         <fieldset>
-          <legend className="mb-1.5 text-sm font-medium">Format</legend>
+          <legend className="mb-1.5 text-sm font-medium">{tr("Format", "Formato")}</legend>
           <div className="grid grid-cols-4 gap-1 rounded-lg border border-line bg-bg-alt p-1">
             {Object.keys(FORMAT_SIZE).map((f) => (
               <label
@@ -172,22 +189,24 @@ export function PostScreen() {
           </div>
         </fieldset>
         <PositionNeeds total={open} value={needs} onChange={setNeeds} idPrefix={`${uid}-n`} />
-        <Field id={`${uid}-l`} label="Skill level">
+        <Field id={`${uid}-l`} label={tr("Skill level", "Nivel")}>
           <select id={`${uid}-l`} className="input" value={level} onChange={(e) => setLevel(e.target.value)}>
             {["All levels", "Casual", "Intermediate", "Competitive"].map((l) => (
-              <option key={l}>{l}</option>
+              <option key={l} value={l}>
+                {levelLabel(l)}
+              </option>
             ))}
           </select>
         </Field>
         <label className="flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-lg bg-bg-alt px-3 text-sm">
           <span>
-            <span className="font-semibold">Send to my crew right away</span>
-            <span className="block text-muted">Crew sees it first, then nearby players who fit.</span>
+            <span className="font-semibold">{tr("Send to my crew right away", "Enviar a mi grupo ahora")}</span>
+            <span className="block text-muted">{tr("Crew sees it first, then nearby players who fit.", "Tu grupo lo ve primero y después jugadores cercanos que encajan.")}</span>
           </span>
-          <Switch checked={send} onChange={setSend} label="Send to my crew right away" />
+          <Switch checked={send} onChange={setSend} label={tr("Send to my crew right away", "Enviar a mi grupo ahora")} />
         </label>
         <button type="submit" className="btn btn-primary w-full">
-          Post game <Icon name="send" className="size-4" />
+          {tr("Post game", "Publicar partido")} <Icon name="send" className="size-4" />
         </button>
       </form>
     </>
@@ -197,6 +216,7 @@ export function PostScreen() {
 // ---------- Crew ----------
 export function Crew() {
   const { s, dispatch } = useApp();
+  const { tr } = useFmt();
   const [filter, setFilter] = useState<Pos | "ALL">("ALL");
   const [q, setQ] = useState("");
   const [copied, setCopied] = useState(false);
@@ -209,10 +229,13 @@ export function Crew() {
 
   return (
     <>
-      <ScreenTitle title="Your crew" sub={`${crewCount} regulars · they see your games first`} />
+      <ScreenTitle
+        title={tr("Your crew", "Tu grupo")}
+        sub={tr(`${crewCount} regulars · they see your games first`, `${crewCount} de siempre · ven tus partidos primero`)}
+      />
       <div className="card mb-5 flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold">Crew invite link</p>
+          <p className="text-sm font-semibold">{tr("Crew invite link", "Link de invitación al grupo")}</p>
           <p className="truncate text-sm text-accent">fullsquad.app/c/diego-sunday-crew</p>
         </div>
         <button
@@ -226,15 +249,15 @@ export function Crew() {
             window.setTimeout(() => setCopied(false), 2000);
           }}
         >
-          <Icon name={copied ? "check" : "copy"} className="size-4" /> {copied ? "Copied" : "Copy link"}
+          <Icon name={copied ? "check" : "copy"} className="size-4" /> {copied ? tr("Copied", "Copiado") : tr("Copy link", "Copiar link")}
         </button>
       </div>
       <div className="mb-4 grid gap-3">
         <label className="sr-only" htmlFor="crew-q">
-          Search players
+          {tr("Search players", "Buscar jugadores")}
         </label>
-        <input id="crew-q" className="input" placeholder="Search players" value={q} onChange={(e) => setQ(e.target.value)} />
-        <div role="group" aria-label="Filter by position" className="flex flex-wrap gap-2">
+        <input id="crew-q" className="input" placeholder={tr("Search players", "Buscar jugadores")} value={q} onChange={(e) => setQ(e.target.value)} />
+        <div role="group" aria-label={tr("Filter by position", "Filtrar por posición")} className="flex flex-wrap gap-2">
           {(["ALL", ...POSITIONS] as const).map((p) => (
             <button
               key={p}
@@ -243,24 +266,28 @@ export function Crew() {
               onClick={() => setFilter(p)}
               className={`min-h-11 rounded-full border px-4 text-sm font-bold ${filter === p ? "border-accent bg-accent text-bg" : "border-line bg-surface hover:bg-bg-alt"}`}
             >
-              {p === "ALL" ? "All positions" : p}
+              {p === "ALL" ? tr("All positions", "Todas") : p}
             </button>
           ))}
         </div>
       </div>
-      <h2 className="caption mb-2 text-muted">Crew · {crew.length}</h2>
+      <h2 className="caption mb-2 text-muted">
+        {tr("Crew", "Grupo")} · {crew.length}
+      </h2>
       <ul className="grid gap-2 md:grid-cols-2">
         {crew.map((p) => (
           <li key={p.id} className="min-w-0">
             <PlayerLine
               p={p}
               pos={p.positions[0]}
-              right={<span className="hidden text-xs text-muted sm:inline">{p.positions.slice(1).map((x) => `also ${x}`).join(", ")}</span>}
+              right={<span className="hidden text-xs text-muted sm:inline">{p.positions.slice(1).map((x) => `${tr("also", "también")} ${x}`).join(", ")}</span>}
             />
           </li>
         ))}
       </ul>
-      <h2 className="caption mb-2 mt-8 text-muted">Nearby players who fit · {nearby.length}</h2>
+      <h2 className="caption mb-2 mt-8 text-muted">
+        {tr("Nearby players who fit", "Jugadores cercanos que encajan")} · {nearby.length}
+      </h2>
       <ul className="grid gap-2 md:grid-cols-2">
         {nearby.map((p) => (
           <li key={p.id} className="min-w-0">
@@ -270,7 +297,7 @@ export function Crew() {
               right={
                 <button type="button" className="btn btn-sm btn-secondary !min-h-9 !px-3" onClick={() => dispatch({ type: "crew", pid: p.id })}>
                   <Icon name="plus" className="size-4" />
-                  <span className="sr-only">Add {p.name} to crew</span>
+                  <span className="sr-only">{tr(`Add ${p.name} to crew`, `Agregar a ${p.name} al grupo`)}</span>
                 </button>
               }
             />
@@ -284,30 +311,33 @@ export function Crew() {
 // ---------- Profile ----------
 export function Profile() {
   const { s, dispatch } = useApp();
+  const { tr, level: levelLabel } = useFmt();
   const me = s.players[ME];
   const [notif, setNotif] = useState({ crew: true, nearby: true, backfill: true });
   const setPositions = (positions: Pos[]) => positions.length && dispatch({ type: "profile", positions, skill: me.skill });
   return (
     <>
-      <ScreenTitle title="Profile" />
+      <ScreenTitle title={tr("Profile", "Perfil")} />
       <div className="card grid gap-6 p-5 md:p-6">
         <div className="flex items-center gap-4">
           <Avatar name="Diego R" className="size-14 text-base" />
           <div>
             <p className="text-lg font-bold">Diego R.</p>
             <p className="text-sm text-muted">
-              Organizer · shows up {me.showed}/{me.of}
+              {tr("Organizer", "Organizador")} · {tr("shows up", "asiste")} {me.showed}/{me.of}
             </p>
           </div>
         </div>
         <div>
-          <p className="mb-1 text-sm font-semibold">Positions I play</p>
-          <p className="mb-2 text-sm text-muted">Pick every spot you&apos;re happy playing. The first one is your main position.</p>
-          <PosToggles value={me.positions} onChange={setPositions} label="Positions I play" />
+          <p className="mb-1 text-sm font-semibold">{tr("Positions I play", "Posiciones que juego")}</p>
+          <p className="mb-2 text-sm text-muted">
+            {tr("Pick every spot you're happy playing. The first one is your main position.", "Elige todas las posiciones que te gusta jugar. La primera es tu posición principal.")}
+          </p>
+          <PosToggles value={me.positions} onChange={setPositions} label={tr("Positions I play", "Posiciones que juego")} />
         </div>
         <div>
-          <p className="mb-2 text-sm font-semibold">Skill</p>
-          <div className="inline-flex rounded-lg border border-line bg-bg-alt p-1" role="group" aria-label="Skill">
+          <p className="mb-2 text-sm font-semibold">{tr("Skill", "Nivel")}</p>
+          <div className="inline-flex rounded-lg border border-line bg-bg-alt p-1" role="group" aria-label={tr("Skill", "Nivel")}>
             {(["Casual", "Intermediate", "Competitive"] as Skill[]).map((k) => (
               <button
                 key={k}
@@ -316,18 +346,18 @@ export function Profile() {
                 onClick={() => dispatch({ type: "profile", positions: me.positions, skill: k })}
                 className={`min-h-11 rounded-md px-3 text-sm font-semibold ${me.skill === k ? "bg-surface shadow-sm" : "text-muted"}`}
               >
-                {k}
+                {levelLabel(k)}
               </button>
             ))}
           </div>
         </div>
         <div className="grid gap-1">
-          <p className="mb-1 text-sm font-semibold">Notify me about</p>
+          <p className="mb-1 text-sm font-semibold">{tr("Notify me about", "Avísame sobre")}</p>
           {(
             [
-              ["crew", "New games from my crews"],
-              ["nearby", "Nearby games that need my positions"],
-              ["backfill", "Backfill offers when I'm on a waitlist"],
+              ["crew", tr("New games from my crews", "Partidos nuevos de mis grupos")],
+              ["nearby", tr("Nearby games that need my positions", "Partidos cercanos que necesitan mis posiciones")],
+              ["backfill", tr("Backfill offers when I'm on a waitlist", "Ofertas de cupo cuando estoy en lista de espera")],
             ] as const
           ).map(([k, label]) => (
             <label key={k} className="flex min-h-11 cursor-pointer items-center justify-between gap-3 text-sm">
@@ -337,15 +367,19 @@ export function Profile() {
           ))}
         </div>
         <div className="flex items-center justify-between border-t border-line pt-4 text-sm">
-          <span className="font-semibold">Theme</span>
+          <span className="font-semibold">{tr("Theme", "Tema")}</span>
           <ThemeToggle />
+        </div>
+        <div className="flex items-center justify-between border-t border-line pt-4 text-sm">
+          <span className="font-semibold">{tr("Language", "Idioma")}</span>
+          <LangToggle />
         </div>
         <div className="flex flex-wrap gap-3 border-t border-line pt-4">
           <button type="button" className="btn btn-secondary btn-sm" onClick={() => dispatch({ type: "reset" })}>
-            <Icon name="refresh" className="size-4" /> Reset demo data
+            <Icon name="refresh" className="size-4" /> {tr("Reset demo data", "Reiniciar datos de la demo")}
           </button>
           <a href="/" className="btn btn-sm text-accent">
-            Back to the website
+            {tr("Back to the website", "Volver al sitio web")}
           </a>
         </div>
       </div>

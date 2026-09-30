@@ -40,7 +40,7 @@ const jsonLd = [
   {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: FAQS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+    mainEntity: FAQS.map((f) => ({ "@type": "Question", name: f.q.en, acceptedAnswer: { "@type": "Answer", text: f.a.en } })),
   },
 ];
 

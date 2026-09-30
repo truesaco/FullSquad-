@@ -1,5 +1,6 @@
 // Fullsquad app demo: data model, seed data, and a pure reducer.
 // Everything runs in the browser with simulated players; nothing is sent anywhere.
+import type { L } from "@/lib/i18n";
 import { claimSlot, emptyNeeds, fitNeeds, totalNeeds, type NeedKey, type Needs, type Pos } from "@/lib/positions";
 
 export type Skill = "Casual" | "Intermediate" | "Competitive";
@@ -14,9 +15,9 @@ export type Player = {
   crew: boolean;
 };
 export type Spot = { pid: string; pos: Pos };
-export type Offer = { pid: string; pos: Pos; dropped: string; startedAt: number; passed: string[] };
+export type Offer = { pid: string; pos: Pos; dropped: L; startedAt: number; passed: string[] };
 export type LogKind = "post" | "join" | "match" | "wait" | "drop" | "offer" | "pass" | "in" | "info";
-export type LogEntry = { t: number; kind: LogKind; text: string };
+export type LogEntry = { t: number; kind: LogKind; text: L };
 export type Game = {
   id: string;
   title: string;
@@ -34,7 +35,7 @@ export type Game = {
   fillQueue: string[];
   log: LogEntry[];
 };
-export type Toast = { id: number; text: string; sub?: string };
+export type Toast = { id: number; text: L; sub?: L };
 export type State = { players: Record<string, Player>; games: Game[]; toasts: Toast[]; seq: number };
 
 export const ME = "me";
@@ -135,7 +136,7 @@ export function seedState(): State {
       organizerId: ME,
       roster: [ME, "marco", "kevin", "sebastian", "rafa", "jorge", "nico", "pablo", "mateo", "julian"],
       want: { GK: 1, DEF: 1 },
-      log: [{ t, kind: "post", text: "You posted the game to your crew." }],
+      log: [{ t, kind: "post", text: B("You posted the game to your crew.", "Publicaste el partido para tu grupo.") }],
     }),
     makeGame(players, {
       id: "wednesday-run",
@@ -149,8 +150,8 @@ export function seedState(): State {
       roster: [ME, "marco", "kevin", "tomas", "andres", "sebastian", "camilo", "rafa", "jorge", "nico", "ivan", "pablo", "mateo", "julian"],
       waitlist: ["luis", "santi", "oscar"],
       log: [
-        { t: t - 60000, kind: "info", text: "Game filled: 14/14. Game on." },
-        { t, kind: "wait", text: "Luis, Santi and Óscar are on the waitlist." },
+        { t: t - 60000, kind: "info", text: B("Game filled: 14/14. Game on.", "Partido lleno: 14/14. ¡A jugar!") },
+        { t, kind: "wait", text: B("Luis, Santi and Óscar are on the waitlist.", "Luis, Santi y Óscar están en la lista de espera.") },
       ],
     }),
     makeGame(players, {
@@ -195,6 +196,19 @@ export function seedState(): State {
 
 // ---------- helpers ----------
 export const name = (s: State, pid: string) => (pid === ME ? "You" : s.players[pid]?.name ?? "Someone");
+/** A player's name in both languages ("You" / "Tú" for the current user). */
+export const nameL = (s: State, pid: string): L => (pid === ME ? B("You", "Tú") : B(s.players[pid]?.name ?? "Someone", s.players[pid]?.name ?? "Alguien"));
+export const B = (en: string, es: string): L => ({ en, es });
+export const DAY_ES: Record<string, string> = { Mon: "Lun", Tue: "Mar", Wed: "Mié", Thu: "Jue", Fri: "Vie", Sat: "Sáb", Sun: "Dom" };
+export const LEVEL_ES: Record<string, string> = { "All levels": "Todos los niveles", Casual: "Casual", Intermediate: "Intermedio", Competitive: "Competitivo" };
+export const TITLE_ES: Record<string, string> = {
+  "Sunday Run": "Fútbol del domingo",
+  "Wednesday Run": "Fútbol del miércoles",
+  "Tuesday Futsal": "Futsal del martes",
+  "Saturday 11s": "Fútbol 11 del sábado",
+  "Thursday 8s": "Fútbol 8 del jueves",
+  "Friday Night Run": "Fútbol del viernes",
+};
 export const isFull = (g: Game) => g.roster.length >= g.size;
 export const openSpots = (g: Game) => g.size - g.roster.length;
 export const posCounts = (g: Game) => {
@@ -245,12 +259,12 @@ export type Action =
   | { type: "delete"; id: string }
   | { type: "profile"; positions: Pos[]; skill: Skill }
   | { type: "crew"; pid: string }
-  | { type: "toast"; text: string; sub?: string }
+  | { type: "toast"; text: L; sub?: L }
   | { type: "dismiss"; toastId: number };
 
-const log = (g: Game, t: number, kind: LogKind, text: string): Game => ({ ...g, log: [{ t, kind, text }, ...g.log].slice(0, 40) });
+const log = (g: Game, t: number, kind: LogKind, text: L): Game => ({ ...g, log: [{ t, kind, text }, ...g.log].slice(0, 40) });
 
-function withToast(s: State, text: string, sub?: string): State {
+function withToast(s: State, text: L, sub?: L): State {
   return { ...s, toasts: [...s.toasts, { id: s.seq, text, sub }].slice(-3), seq: s.seq + 1 };
 }
 
@@ -259,18 +273,30 @@ function updateGame(s: State, id: string, fn: (g: Game) => Game): State {
 }
 
 /** Open a spot after a dropout: offer it to the waitlist, or re-post to crew and nearby. */
-function afterDrop(s: State, g: Game, t: number, pos: Pos, droppedName: string): Game {
+function afterDrop(s: State, g: Game, t: number, pos: Pos, droppedName: L): Game {
   const cand = nextCandidate(g, s, pos, []);
   if (cand) {
-    const who = name(s, cand);
+    const who = nameL(s, cand);
+    const fits = s.players[cand].positions.includes(pos);
     return log(
       { ...g, offer: { pid: cand, pos, dropped: droppedName, startedAt: t, passed: [] } },
       t,
       "offer",
-      `Spot offered to ${who}${s.players[cand].positions.includes(pos) ? ` (first ${pos} in line)` : " (next in line)"}.`,
+      B(
+        `Spot offered to ${who.en}${fits ? ` (first ${pos} in line)` : " (next in line)"}.`,
+        `Cupo ofrecido a ${who.es}${fits ? ` (primer ${pos} en la fila)` : " (siguiente en la fila)"}.`,
+      ),
     );
   }
-  const g2 = log(g, t, "info", `Waitlist is empty. Re-posted the open ${pos} spot to crew and nearby players.`);
+  const g2 = log(
+    g,
+    t,
+    "info",
+    B(
+      `Waitlist is empty. Re-posted the open ${pos} spot to crew and nearby players.`,
+      `La lista de espera está vacía. El cupo de ${pos} se volvió a publicar para tu grupo y jugadores cercanos.`,
+    ),
+  );
   return { ...g2, fillQueue: fillOrder(g2, s).slice(0, openSpots(g2)) };
 }
 
@@ -290,7 +316,7 @@ export function reducer(s: State, a: Action): State {
       const p = s.players[a.pid];
       if (!p || p.id === ME) return s;
       const s2 = { ...s, players: { ...s.players, [p.id]: { ...p, crew: !p.crew } } };
-      return withToast(s2, p.crew ? `${p.name} removed from your crew` : `${p.name} added to your crew`);
+      return withToast(s2, p.crew ? B(`${p.name} removed from your crew`, `${p.name} salió de tu grupo`) : B(`${p.name} added to your crew`, `${p.name} se unió a tu grupo`));
     }
     case "delete":
       return { ...s, games: s.games.filter((g) => g.id !== a.id) };
@@ -320,15 +346,20 @@ export function reducer(s: State, a: Action): State {
         waitlist: [],
         offer: null,
         fillQueue: [],
-        log: [{ t: a.t, kind: "post", text: "You posted the game. Tap “Send to crew” to start filling it." }],
+        log: [{ t: a.t, kind: "post", text: B("You posted the game. Tap “Send to crew” to start filling it.", "Publicaste el partido. Toca “Enviar a mi grupo” para empezar a llenarlo.") }],
       };
-      return withToast({ ...s, games: [g, ...s.games] }, "Game posted", "Now send it to your crew.");
+      return withToast({ ...s, games: [g, ...s.games] }, B("Game posted", "Partido publicado"), B("Now send it to your crew.", "Ahora envíalo a tu grupo."));
     }
 
     case "startFill":
       return updateGame(s, a.id, (g) => {
         if (g.fillQueue.length || isFull(g)) return g;
-        return log({ ...g, fillQueue: fillOrder(g, s) }, a.t, "post", "Sent to your crew first. Nearby players who fit get it next.");
+        return log(
+          { ...g, fillQueue: fillOrder(g, s) },
+          a.t,
+          "post",
+          B("Sent to your crew first. Nearby players who fit get it next.", "Enviado primero a tu grupo. Después les llega a jugadores cercanos que encajan."),
+        );
       });
 
     case "fillNext": {
@@ -346,14 +377,26 @@ export function reducer(s: State, a: Action): State {
           next,
           a.t,
           p.crew ? "join" : "match",
-          p.crew ? `${p.name} (${pos}) tapped In. Crew.` : `${p.name} (${pos}) matched nearby, ${p.miles} mi away, and tapped In.`,
+          p.crew
+            ? B(`${p.name} (${pos}) tapped In. Crew.`, `${p.name} (${pos}) se apuntó. Grupo.`)
+            : B(`${p.name} (${pos}) matched nearby, ${p.miles} mi away, and tapped In.`, `${p.name} (${pos}) es compatible, está a ${p.miles} mi y se apuntó.`),
         );
         if (isFull(next)) {
-          next = log(next, a.t, "info", `Game filled: ${next.size}/${next.size}. Game on.`);
-          return withToast(updateGame(s, a.id, () => next), `${next.title} is full`, `${next.size}/${next.size}. Game on.`);
+          next = log(next, a.t, "info", B(`Game filled: ${next.size}/${next.size}. Game on.`, `Partido lleno: ${next.size}/${next.size}. ¡A jugar!`));
+          const title = next.title;
+          return withToast(
+            updateGame(s, a.id, () => next),
+            B(`${title} is full`, `${TITLE_ES[title] ?? title} está lleno`),
+            B(`${next.size}/${next.size}. Game on.`, `${next.size}/${next.size}. ¡A jugar!`),
+          );
         }
       } else {
-        next = log({ ...next, waitlist: [...g.waitlist, pid] }, a.t, "wait", `${p.name} joined the waitlist at #${g.waitlist.length + 1}.`);
+        next = log(
+          { ...next, waitlist: [...g.waitlist, pid] },
+          a.t,
+          "wait",
+          B(`${p.name} joined the waitlist at #${g.waitlist.length + 1}.`, `${p.name} entró a la lista de espera en el #${g.waitlist.length + 1}.`),
+        );
       }
       return updateGame(s, a.id, () => next);
     }
@@ -366,13 +409,18 @@ export function reducer(s: State, a: Action): State {
       if (slot) {
         const pos = slot === "ANY" ? me.positions[0] : slot;
         const s2 = updateGame(s, a.id, (x) =>
-          log({ ...x, roster: [...x.roster, { pid: ME, pos }], needs: { ...x.needs, [slot]: x.needs[slot] - 1 } }, a.t, "join", `You tapped In as ${pos}.`),
+          log({ ...x, roster: [...x.roster, { pid: ME, pos }], needs: { ...x.needs, [slot]: x.needs[slot] - 1 } }, a.t, "join", B(`You tapped In as ${pos}.`, `Te apuntaste como ${pos}.`)),
         );
-        return withToast(s2, "You're in", `${g.title} · ${g.day} ${g.time}`);
+        return withToast(s2, B("You're in", "Estás dentro"), B(`${g.title} · ${g.day} ${g.time}`, `${TITLE_ES[g.title] ?? g.title} · ${DAY_ES[g.day] ?? g.day} ${g.time}`));
       }
-      const why = isFull(g) ? "The game is full" : "The open spots need other positions";
-      const s2 = updateGame(s, a.id, (x) => log({ ...x, waitlist: [...x.waitlist, ME] }, a.t, "wait", `You joined the waitlist at #${x.waitlist.length + 1}.`));
-      return withToast(s2, `You're #${g.waitlist.length + 1} on the waitlist`, `${why}. You'll get a one-tap offer if a spot opens.`);
+      const why = isFull(g) ? B("The game is full", "El partido está lleno") : B("The open spots need other positions", "Los cupos libres son para otras posiciones");
+      const s2 = updateGame(s, a.id, (x) => log({ ...x, waitlist: [...x.waitlist, ME] }, a.t, "wait", B(`You joined the waitlist at #${x.waitlist.length + 1}.`, `Entraste a la lista de espera en el #${x.waitlist.length + 1}.`)));
+      const n = g.waitlist.length + 1;
+      return withToast(
+        s2,
+        B(`You're #${n} on the waitlist`, `Eres el #${n} en la lista de espera`),
+        B(`${why.en}. You'll get a one-tap offer if a spot opens.`, `${why.es}. Te llegará una oferta de un toque si se abre un cupo.`),
+      );
     }
 
     case "leave": {
@@ -380,7 +428,7 @@ export function reducer(s: State, a: Action): State {
       if (!g) return s;
       if (g.waitlist.includes(ME)) {
         return updateGame(s, a.id, (x) =>
-          log({ ...x, waitlist: x.waitlist.filter((p) => p !== ME), offer: x.offer?.pid === ME ? null : x.offer }, a.t, "info", "You left the waitlist."),
+          log({ ...x, waitlist: x.waitlist.filter((p) => p !== ME), offer: x.offer?.pid === ME ? null : x.offer }, a.t, "info", B("You left the waitlist.", "Saliste de la lista de espera.")),
         );
       }
       return reducer(s, { type: "drop", id: a.id, t: a.t, pid: ME });
@@ -392,13 +440,13 @@ export function reducer(s: State, a: Action): State {
       const choices = g.roster.filter((r) => r.pid !== ME && r.pid !== g.organizerId);
       const target = a.pid ? g.roster.find((r) => r.pid === a.pid) : choices[Math.floor(Math.random() * choices.length)];
       if (!target) return s;
-      const who = name(s, target.pid);
+      const who = nameL(s, target.pid);
       let next: Game = {
         ...g,
         roster: g.roster.filter((r) => r.pid !== target.pid),
         needs: { ...g.needs, [target.pos]: g.needs[target.pos] + 1 },
       };
-      next = log(next, a.t, "drop", `${who} dropped out (${target.pos}).`);
+      next = log(next, a.t, "drop", target.pid === ME ? B(`You dropped out (${target.pos}).`, `Te bajaste (${target.pos}).`) : B(`${who.en} dropped out (${target.pos}).`, `${who.es} se bajó (${target.pos}).`));
       next = afterDrop(s, next, a.t, target.pos, who);
       return updateGame(s, a.id, () => next);
     }
@@ -407,7 +455,7 @@ export function reducer(s: State, a: Action): State {
       const g = s.games.find((x) => x.id === a.id);
       if (!g || !g.offer) return s;
       const o = g.offer;
-      const who = name(s, o.pid);
+      const who = nameL(s, o.pid);
       if (a.accept) {
         const p = s.players[o.pid];
         const pos = p.positions.includes(o.pos) ? o.pos : p.positions[0];
@@ -418,17 +466,24 @@ export function reducer(s: State, a: Action): State {
           roster: [...g.roster, { pid: o.pid, pos }],
           needs: { ...g.needs, [o.pos]: Math.max(0, g.needs[o.pos] - 1) },
         };
-        next = log(next, a.t, "in", `${who} tapped In. Spot filled.`);
+        next = log(next, a.t, "in", o.pid === ME ? B("You tapped In. Spot filled.", "Te apuntaste. Cupo lleno.") : B(`${who.en} tapped In. Spot filled.`, `${who.es} se apuntó. Cupo lleno.`));
         const s2 = updateGame(s, a.id, () => next);
-        return withToast(s2, `${o.dropped} dropped · ${o.pid === ME ? "you're" : who + " is"} in`, "Spot filled. You're good.");
+        return withToast(
+          s2,
+          B(
+            `${o.dropped.en} dropped · ${o.pid === ME ? "you're" : who.en + " is"} in`,
+            `${o.dropped.es} se bajó · ${o.pid === ME ? "entras tú" : "entra " + who.es}`,
+          ),
+          B("Spot filled. You're good.", "Cupo lleno. Todo listo."),
+        );
       }
       const passed = [...o.passed, o.pid];
-      let next = log(g, a.t, "pass", `${who} passed. Rolling to the next player.`);
+      let next = log(g, a.t, "pass", o.pid === ME ? B("You passed. Rolling to the next player.", "Pasaste. Va para el siguiente jugador.") : B(`${who.en} passed. Rolling to the next player.`, `${who.es} pasó. Va para el siguiente jugador.`));
       const cand = nextCandidate(next, s, o.pos, passed);
       if (cand) {
-        next = log({ ...next, offer: { ...o, pid: cand, startedAt: a.t, passed } }, a.t, "offer", `Spot offered to ${name(s, cand)}.`);
+        next = log({ ...next, offer: { ...o, pid: cand, startedAt: a.t, passed } }, a.t, "offer", B(`Spot offered to ${nameL(s, cand).en}.`, `Cupo ofrecido a ${nameL(s, cand).es}.`));
       } else {
-        next = log({ ...next, offer: null }, a.t, "info", "Nobody left in line. Re-posted to crew and nearby players.");
+        next = log({ ...next, offer: null }, a.t, "info", B("Nobody left in line. Re-posted to crew and nearby players.", "No queda nadie en la fila. Se volvió a publicar para tu grupo y jugadores cercanos."));
         next = { ...next, fillQueue: fillOrder(next, s).slice(0, openSpots(next)) };
       }
       return updateGame(s, a.id, () => next);
@@ -436,5 +491,5 @@ export function reducer(s: State, a: Action): State {
   }
 }
 
-export const STORAGE_KEY = "fs-demo-v1";
+export const STORAGE_KEY = "fs-demo-v2";
 export type { NeedKey };
