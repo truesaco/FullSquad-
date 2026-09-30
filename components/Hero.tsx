@@ -10,12 +10,12 @@ export function Hero() {
       <div className="pitch-lines pointer-events-none absolute inset-0" aria-hidden="true" />
       <div
         className="glow pointer-events-none absolute -right-40 top-10 size-[520px] rounded-full opacity-25 blur-3xl dark:opacity-20"
-        style={{ background: "radial-gradient(circle, #3DDC84, transparent 65%)" }}
+        style={{ background: "radial-gradient(circle, #9cc9ae, transparent 65%)" }}
         aria-hidden="true"
       />
       <div
-        className="glow pointer-events-none absolute -bottom-40 right-1/4 size-[480px] rounded-full opacity-20 blur-3xl dark:opacity-15"
-        style={{ background: "radial-gradient(circle, #FF8C42, transparent 65%)", animationDelay: "-7s" }}
+        className="glow pointer-events-none absolute -bottom-40 right-1/4 size-[480px] rounded-full opacity-[0.12] blur-3xl dark:opacity-15"
+        style={{ background: "radial-gradient(circle, #E0493E, transparent 65%)", animationDelay: "-7s" }}
         aria-hidden="true"
       />
 
@@ -23,10 +23,10 @@ export function Hero() {
         <div className="max-w-2xl">
           <CityBadge />
           <h1 id="hero-title" className="h1 mt-6">
-            Eliminate the group-chat scramble. <span className="text-accent">Your game fills itself.</span>
+            Eliminate the group-chat scramble. <span className="text-keeper">Your game fills itself.</span>
           </h1>
           <p className="mt-6 max-w-xl text-lg text-muted md:text-xl">
-            Post what your game needs once. FullSquad fills spots by position and skill, runs the waitlist, and backfills dropouts with one
+            Post what your game needs once. Fullsquad fills spots by position and skill, runs the waitlist, and backfills dropouts with one
             tap.
           </p>
           <ul className="mt-6 flex flex-wrap gap-2" aria-label="Supported formats">

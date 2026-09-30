@@ -1,4 +1,4 @@
-// FullSquad app demo: data model, seed data, and a pure reducer.
+// Fullsquad app demo: data model, seed data, and a pure reducer.
 // Everything runs in the browser with simulated players; nothing is sent anywhere.
 import { claimSlot, emptyNeeds, fitNeeds, totalNeeds, type NeedKey, type Needs, type Pos } from "@/lib/positions";
 

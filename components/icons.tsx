@@ -70,27 +70,34 @@ export function Icon({
   );
 }
 
-export function Logo({ className = "size-8" }: { className?: string }) {
+// Fullsquad logo system (turn 3a): eleven players in a 1-4-4-2, keeper in Keeper red.
+// Geometry from the design file: dot 14, column gap 9, row gap 7.
+const KEEPER = "#E0493E";
+const MARK_PLAYERS: [number, number][] = [
+  [30, 7], [30, 28], [30, 49], [30, 70],
+  [53, 7], [53, 28], [53, 49], [53, 70],
+  [76, 28], [76, 49],
+];
+
+/** The formation symbol on its own. Players use `currentColor`. */
+export function LogoMark({ className = "h-8 w-auto", keeper = KEEPER }: { className?: string; keeper?: string }) {
   return (
-    <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
-      <defs>
-        <linearGradient id="fs-logo-g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#0B6E4F" />
-          <stop offset=".35" stopColor="#3DDC84" />
-          <stop offset=".55" stopColor="#C6F432" />
-          <stop offset=".75" stopColor="#FFD23F" />
-          <stop offset="1" stopColor="#F25C54" />
-        </linearGradient>
-      </defs>
-      <rect width="32" height="32" rx="8" fill="url(#fs-logo-g)" />
-      <circle cx="16" cy="16" r="9" fill="#fff" />
-      <path d="M16 11.2l4.3 3.1-1.6 5h-5.4l-1.6-5z" fill="#0F1B2D" />
-      <path
-        d="M16 7v4.2M20.3 14.3l4.2-1.4M18.7 19.3l2.6 3.6M13.3 19.3l-2.6 3.6M11.7 14.3l-4.2-1.4"
-        stroke="#0F1B2D"
-        strokeWidth="1.3"
-      />
+    <svg viewBox="0 0 83 77" className={className} aria-hidden="true" fill="currentColor">
+      <circle cx="7" cy="38.5" r="7" fill={keeper} />
+      {MARK_PLAYERS.map(([x, y]) => (
+        <circle key={`${x}-${y}`} cx={x} cy={y} r="7" />
+      ))}
     </svg>
+  );
+}
+
+/** Horizontal lockup: symbol + "fullsquad" wordmark (Sora 700). Size it with a text-size class. */
+export function Logo({ className = "text-[22px]" }: { className?: string }) {
+  return (
+    <span className={`inline-flex items-center gap-[0.4em] font-display font-bold leading-none tracking-[-0.04em] text-brand ${className}`}>
+      <LogoMark className="h-[1.45em] w-auto shrink-0" />
+      <span>fullsquad</span>
+    </span>
   );
 }
 

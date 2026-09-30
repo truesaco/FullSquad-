@@ -74,7 +74,7 @@ export function WaitlistForm({
           <Icon name="check" className="size-6" strokeWidth={3} />
         </span>
         <p className="text-lg font-bold">You&apos;re on the list.</p>
-        <p className="mt-1 text-sm text-muted">One email when FullSquad goes live near you. That&apos;s it.</p>
+        <p className="mt-1 text-sm text-muted">One email when Fullsquad goes live near you. That&apos;s it.</p>
       </div>
     );
   }
@@ -131,7 +131,7 @@ export function WaitlistForm({
           {(["Organizer", "Player"] as const).map((r) => (
             <label
               key={r}
-              className={`flex min-h-11 cursor-pointer items-center rounded-md px-5 text-sm font-semibold transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-primary ${
+              className={`flex min-h-11 cursor-pointer items-center rounded-md px-5 text-sm font-semibold transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent ${
                 role === r ? "bg-surface text-fg shadow-sm" : "text-muted"
               }`}
             >
@@ -155,12 +155,12 @@ export function WaitlistForm({
             type="checkbox"
             checked={consent}
             onChange={(e) => setConsent(e.target.checked)}
-            className="mt-0.5 size-5 shrink-0 accent-[#0b6e4f]"
+            className="mt-0.5 size-5 shrink-0 accent-[#1f3d2f]"
             aria-invalid={errors.consent ? true : undefined}
             aria-describedby={errors.consent ? `${uid}-consent-err` : undefined}
           />
           <span id={`${uid}-note`}>
-            I agree to get emails from FullSquad. See the{" "}
+            I agree to get emails from Fullsquad. See the{" "}
             <a href="/privacy/" className="font-medium text-accent underline underline-offset-2">
               Privacy Policy
             </a>

@@ -48,7 +48,7 @@ export function AppPreview() {
           id="app-title"
           eyebrow="Try it now"
           title="See how the app actually works"
-          lead="A working demo of the FullSquad app with simulated players. It runs in your browser: on your phone it looks like the app, on a laptop it's the web app. Nothing to install and nothing gets sent."
+          lead="A working demo of the Fullsquad app with simulated players. It runs in your browser: on your phone it looks like the app, on a laptop it's the web app. Nothing to install and nothing gets sent."
         />
         <ul className="grid gap-5 md:grid-cols-3">
           {PATHS.map((p, i) => (

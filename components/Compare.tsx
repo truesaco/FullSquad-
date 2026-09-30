@@ -6,7 +6,7 @@ const y = (note?: string): Cell => ({ v: "yes", note });
 const n = (note?: string): Cell => ({ v: "no", note });
 const p = (note?: string): Cell => ({ v: "partial", note });
 
-const COLS = ["Group chat", "Pay-to-play pickup apps", "Hosting & ticketing apps", "FullSquad"];
+const COLS = ["Group chat", "Pay-to-play pickup apps", "Hosting & ticketing apps", "Fullsquad"];
 
 const ROWS: { label: string; cells: Cell[] }[] = [
   { label: "Free for every player", cells: [y(), n("Pay per game"), p("Organizer sets a price, plus fees"), y("$0 forever")] },
@@ -49,13 +49,13 @@ export function Compare() {
           id="compare-title"
           eyebrow="Why not just use…"
           title="Built for the game you already run"
-          lead="Most pickup apps sell spots in their games, with strangers at booked fields. FullSquad is for your crew, your field, and your rules. Free."
+          lead="Most pickup apps sell spots in their games, with strangers at booked fields. Fullsquad is for your crew, your field, and your rules. Free."
         />
 
         {/* Desktop / tablet: table */}
         <div className="reveal hidden overflow-hidden rounded-2xl border border-line bg-surface md:block">
           <table className="w-full table-fixed text-sm">
-            <caption className="sr-only">How FullSquad compares to group chats, pay-to-play pickup apps, and hosting apps</caption>
+            <caption className="sr-only">How Fullsquad compares to group chats, pay-to-play pickup apps, and hosting apps</caption>
             <thead>
               <tr className="border-b border-line">
                 <th scope="col" className="w-[28%] p-4 text-left font-semibold text-muted">
@@ -92,13 +92,13 @@ export function Compare() {
         {/* Mobile: compact icon grid */}
         <div className="reveal overflow-hidden rounded-2xl border border-line bg-surface md:hidden">
           <table className="w-full table-fixed text-sm">
-            <caption className="sr-only">How FullSquad compares to group chats, pay-to-play pickup apps, and hosting apps</caption>
+            <caption className="sr-only">How Fullsquad compares to group chats, pay-to-play pickup apps, and hosting apps</caption>
             <thead>
               <tr className="border-b border-line text-[11px] leading-tight">
                 <th scope="col" className="w-[40%] p-2 text-left">
                   <span className="sr-only">Feature</span>
                 </th>
-                {["Group chat", "Pay-to-play", "Hosting apps", "FullSquad"].map((c, i) => (
+                {["Group chat", "Pay-to-play", "Hosting apps", "Fullsquad"].map((c, i) => (
                   <th key={c} scope="col" className={`p-2 text-center font-bold ${i === 3 ? "bg-tint text-accent" : "text-muted"}`}>
                     {c}
                   </th>

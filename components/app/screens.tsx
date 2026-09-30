@@ -135,7 +135,7 @@ export function PostScreen() {
 
   return (
     <>
-      <ScreenTitle title="Post a game" sub="One post. FullSquad does the chasing." />
+      <ScreenTitle title="Post a game" sub="One post. Fullsquad does the chasing." />
       <form onSubmit={submit} className="card grid gap-5 p-5 md:p-6">
         <Field id={`${uid}-t`} label="Game name">
           <input id={`${uid}-t`} className="input" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={40} required />
@@ -161,7 +161,7 @@ export function PostScreen() {
             {Object.keys(FORMAT_SIZE).map((f) => (
               <label
                 key={f}
-                className={`flex min-h-11 cursor-pointer items-center justify-center rounded-md text-sm font-semibold has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-primary ${
+                className={`flex min-h-11 cursor-pointer items-center justify-center rounded-md text-sm font-semibold has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent ${
                   format === f ? "bg-surface text-fg shadow-sm" : "text-muted"
                 }`}
               >
@@ -241,7 +241,7 @@ export function Crew() {
               type="button"
               aria-pressed={filter === p}
               onClick={() => setFilter(p)}
-              className={`min-h-11 rounded-full border px-4 text-sm font-bold ${filter === p ? "border-primary bg-primary text-on-primary" : "border-line bg-surface hover:bg-bg-alt"}`}
+              className={`min-h-11 rounded-full border px-4 text-sm font-bold ${filter === p ? "border-accent bg-accent text-bg" : "border-line bg-surface hover:bg-bg-alt"}`}
             >
               {p === "ALL" ? "All positions" : p}
             </button>
@@ -365,7 +365,7 @@ export function Switch({ checked, onChange, label }: { checked: boolean; onChang
         e.preventDefault();
         onChange(!checked);
       }}
-      className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors ${checked ? "bg-primary" : "bg-line"}`}
+      className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors ${checked ? "bg-accent" : "bg-line"}`}
     >
       <span className={`inline-block size-5 rounded-full bg-white shadow transition-transform ${checked ? "translate-x-6" : "translate-x-1"}`} />
     </button>

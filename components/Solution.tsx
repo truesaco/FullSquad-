@@ -37,7 +37,7 @@ export function Solution() {
           <div className="reveal grid gap-4 sm:grid-cols-2" style={{ ["--delay" as string]: "100ms" }}>
             <figure>
               <figcaption className="caption mb-2 text-muted">Before · The group chat</figcaption>
-              <div className="overflow-hidden rounded-2xl border border-line bg-[#ece5dd] text-[#0f1b2d] shadow-sm dark:bg-[#1b2530] dark:text-[#e9edef]">
+              <div className="overflow-hidden rounded-2xl border border-line bg-[#ece5dd] text-[#1a1a18] shadow-sm dark:bg-[#1b2530] dark:text-[#e9edef]">
                 <div className="flex items-center gap-3 bg-white px-4 py-3 dark:bg-[#202c33]">
                   <span className="size-9 rounded-full bg-[#d1d7db] dark:bg-[#3b4a54]" aria-hidden="true" />
                   <div className="min-w-0 flex-1">
@@ -63,7 +63,7 @@ export function Solution() {
             </figure>
 
             <figure>
-              <figcaption className="caption mb-2 text-accent">After · FullSquad</figcaption>
+              <figcaption className="caption mb-2 text-accent">After · Fullsquad</figcaption>
               <div className="card border-2 !border-mint p-5">
                 <div className="flex items-start justify-between gap-2">
                   <div>
@@ -98,12 +98,12 @@ export function Solution() {
           </div>
         </div>
 
-        <div className="reveal mt-14 flex flex-col gap-4 rounded-2xl bg-[#0f1b2d] p-6 text-white sm:flex-row sm:items-center md:p-8">
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-mint text-sm font-extrabold text-[#0f1b2d]">
+        <div className="reveal mt-14 flex flex-col gap-4 rounded-2xl bg-[#1a1a18] p-6 text-white sm:flex-row sm:items-center md:p-8">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-mint text-sm font-extrabold text-[#1a1a18]">
             GK
           </span>
           <p className="text-lg leading-relaxed">
-            Unlike group chats and pay-to-play apps, FullSquad matches players by position and skill from day one, so you don&apos;t end up
+            Unlike group chats and pay-to-play apps, Fullsquad matches players by position and skill from day one, so you don&apos;t end up
             with <strong className="text-mint">five strikers and no keeper</strong>.
           </p>
         </div>

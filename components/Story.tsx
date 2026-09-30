@@ -65,7 +65,7 @@ export function Story() {
           ))}
         </ul>
 
-        <dl className="reveal mt-6 grid grid-cols-2 overflow-hidden rounded-2xl bg-[#0f1b2d] text-white md:grid-cols-4">
+        <dl className="reveal mt-6 grid grid-cols-2 overflow-hidden rounded-2xl bg-[#1a1a18] text-white md:grid-cols-4">
           {STATS.map(([v, l]) => (
             <div key={l} className="border-white/10 p-6 text-center [&:not(:last-child)]:border-r max-md:[&:nth-child(2)]:border-r-0 max-md:[&:nth-child(-n+2)]:border-b">
               <dt className="sr-only">{l}</dt>

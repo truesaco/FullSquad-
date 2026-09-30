@@ -73,7 +73,7 @@ export function HeroPhone() {
   return (
     <div ref={rootRef} className="relative">
       <p className="sr-only">
-        Animated example: a FullSquad game card for the Wednesday Run fills from 3 to 14 of 14 players and shows Game On. Two players join the
+        Animated example: a Fullsquad game card for the Wednesday Run fills from 3 to 14 of 14 players and shows Game On. Two players join the
         waitlist. When Andrés drops, Luis is automatically promoted from the waitlist.
       </p>
       <div aria-hidden="true">
@@ -145,8 +145,8 @@ export function HeroPhone() {
             </div>
             <div className="mt-3 h-[52px]">
               {f.dropped ? (
-                <div className="anim-toast flex items-center gap-2.5 rounded-xl bg-[#0f1b2d] px-3 py-2 text-white shadow-lg">
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-mint text-[#0f1b2d]">
+                <div className="anim-toast flex items-center gap-2.5 rounded-xl bg-[#1a1a18] px-3 py-2 text-white shadow-lg">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-mint text-[#1a1a18]">
                     <Icon name="check" className="size-4" strokeWidth={3} />
                   </span>
                   <span className="leading-tight">

@@ -17,7 +17,7 @@ export function NeedChips({ g, mine = [] }: { g: Game; mine?: Pos[] }) {
       {chips.map((c) => (
         <li
           key={c.key}
-          className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${c.match ? "bg-tint text-accent ring-1 ring-primary" : "bg-bg-alt text-muted"}`}
+          className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${c.match ? "bg-tint text-accent ring-1 ring-accent" : "bg-bg-alt text-muted"}`}
         >
           Need {c.label}
         </li>
@@ -156,8 +156,8 @@ export function Toasts() {
   return (
     <div className="pointer-events-none fixed inset-x-4 top-16 z-[1100] grid justify-items-center gap-2 md:inset-x-auto md:right-6 md:top-auto md:bottom-6" aria-live="polite">
       {s.toasts.map((t) => (
-        <div key={t.id} className="anim-toast pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-xl bg-[#0f1b2d] px-4 py-3 text-white shadow-xl">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-mint text-[#0f1b2d]">
+        <div key={t.id} className="anim-toast pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-xl bg-[#1a1a18] px-4 py-3 text-white shadow-xl">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-mint text-[#1a1a18]">
             <Icon name="check" className="size-4" strokeWidth={3} />
           </span>
           <span className="min-w-0 flex-1 leading-tight">
@@ -181,9 +181,9 @@ export function BackfillSheet() {
   const left = secondsLeft(g.offer.startedAt, now);
   return (
     <div className="fixed inset-x-0 bottom-0 z-[1200] p-3 md:bottom-6 md:left-auto md:right-6 md:w-[400px] md:p-0" role="alertdialog" aria-labelledby="bf-title" aria-describedby="bf-desc">
-      <div className="anim-toast rounded-2xl bg-[#0f1b2d] p-5 text-white shadow-2xl ring-1 ring-white/10">
+      <div className="anim-toast rounded-2xl bg-[#1a1a18] p-5 text-white shadow-2xl ring-1 ring-white/10">
         <p className="flex items-center gap-2 text-xs text-white/70">
-          <Icon name="bell" className="size-4" /> FullSquad · now
+          <Icon name="bell" className="size-4" /> Fullsquad · now
         </p>
         <p id="bf-title" className="mt-2 text-lg font-bold">
           A spot opened for {g.title}, {g.day} {g.time}
@@ -202,7 +202,7 @@ export function BackfillSheet() {
           </button>
           <button
             type="button"
-            className="btn btn-sm bg-mint text-[#0f1b2d] hover:brightness-95"
+            className="btn btn-sm btn-primary"
             onClick={() => {
               dispatch({ type: "respond", id: g.id, t: Date.now(), accept: true });
               go(`/game/${g.id}`);
@@ -237,7 +237,7 @@ export function PosToggles({
             title={POS_NAME[p]}
             onClick={() => onChange(on ? value.filter((x) => x !== p) : [...value, p])}
             className={`inline-flex min-h-11 min-w-14 items-center justify-center gap-1.5 rounded-full border px-4 text-sm font-bold transition-colors ${
-              on ? "border-primary bg-tint text-accent" : "border-line bg-surface hover:bg-bg-alt"
+              on ? "border-accent bg-tint text-accent" : "border-line bg-surface hover:bg-bg-alt"
             }`}
           >
             {on ? <Icon name="check" className="size-4" strokeWidth={3} /> : null}

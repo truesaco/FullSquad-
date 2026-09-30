@@ -56,8 +56,8 @@ function Shell() {
     <div className="min-h-dvh bg-bg-alt md:flex">
       {/* Desktop / tablet sidebar */}
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-bg p-4 md:flex lg:w-64">
-        <a href="/" className="mb-6 flex items-center gap-2 px-2 text-lg font-extrabold">
-          <Logo /> FullSquad
+        <a href="/" className="mb-6 flex items-center px-2" aria-label="Fullsquad website">
+          <Logo />
         </a>
         <nav aria-label="App">
           <ul className="grid gap-1">
@@ -94,9 +94,9 @@ function Shell() {
       </aside>
 
       <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-3 bg-[#0f1b2d] px-4 py-2 text-xs text-white md:px-8">
+        <div className="flex items-center justify-between gap-3 bg-[#1a1a18] px-4 py-2 text-xs text-white md:px-8">
           <p>
-            <span className="mr-2 rounded bg-mint px-1.5 py-0.5 font-bold text-[#0f1b2d]">DEMO</span>
+            <span className="mr-2 rounded bg-mint px-1.5 py-0.5 font-bold text-[#1a1a18]">DEMO</span>
             Simulated players. Nothing is sent to anyone.
           </p>
           <button type="button" onClick={() => dispatch({ type: "reset" })} className="shrink-0 font-semibold underline underline-offset-2">
@@ -106,8 +106,8 @@ function Shell() {
 
         {/* Phone top bar */}
         <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-line bg-bg/90 px-4 backdrop-blur md:hidden">
-          <a href="/" className="flex items-center gap-2 font-extrabold" aria-label="FullSquad website">
-            <Logo className="size-7" /> FullSquad
+          <a href="/" className="flex items-center" aria-label="Fullsquad website">
+            <Logo className="text-[20px]" />
           </a>
           <div className="flex items-center">
             <ThemeToggle />

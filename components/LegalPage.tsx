@@ -6,8 +6,8 @@ export function LegalPage({ title, updated, children }: { title: string; updated
     <>
       <header className="border-b border-line">
         <div className="container-x flex h-[60px] items-center justify-between lg:h-[72px]">
-          <a href="/" className="flex items-center gap-2 text-lg font-extrabold">
-            <Logo /> FullSquad
+          <a href="/" className="flex items-center" aria-label="Fullsquad home">
+            <Logo />
           </a>
           <a href="/" className="text-sm font-semibold text-accent">
             ← Back to home

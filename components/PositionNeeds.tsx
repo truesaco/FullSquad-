@@ -46,7 +46,7 @@ export function PositionNeeds({
           aria-pressed={anyOnly}
           onClick={() => onChange(fitNeeds({ GK: 0, DEF: 0, MID: 0, FWD: 0, ANY: 0 }, total))}
           className={`inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold transition-colors ${
-            anyOnly ? "border-primary bg-primary text-on-primary" : "border-line bg-surface hover:bg-bg-alt"
+            anyOnly ? "border-accent bg-accent text-bg" : "border-line bg-surface hover:bg-bg-alt"
           }`}
         >
           {anyOnly ? <Icon name="check" className="size-4" strokeWidth={3} /> : null}
@@ -64,7 +64,7 @@ export function PositionNeeds({
               title={POS_NAME[p]}
               onClick={() => toggle(p)}
               className={`inline-flex min-h-11 min-w-14 items-center justify-center gap-1.5 rounded-full border px-4 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
-                on ? "border-primary bg-tint text-accent" : "border-line bg-surface hover:bg-bg-alt"
+                on ? "border-accent bg-tint text-accent" : "border-line bg-surface hover:bg-bg-alt"
               }`}
             >
               {on ? <Icon name="check" className="size-4" strokeWidth={3} /> : null}

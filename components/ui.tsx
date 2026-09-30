@@ -98,12 +98,12 @@ export function SectionHeader({
 export function PhoneFrame({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
     <div
-      className={`relative mx-auto w-full max-w-[320px] rounded-[44px] border border-white/10 bg-[#0f1b2d] p-2.5 shadow-[0_40px_80px_-20px_rgba(15,27,45,.45)] ${className}`}
+      className={`relative mx-auto w-full max-w-[320px] rounded-[44px] border border-white/10 bg-[#1a1a18] dark:border-white/25 p-2.5 shadow-[0_40px_80px_-20px_rgba(15,27,45,.45)] ${className}`}
     >
       <div className="relative overflow-hidden rounded-[36px] bg-bg">
         <div className="flex items-center justify-between px-6 pt-3 pb-1 text-[11px] font-semibold tabular">
           <span>7:20</span>
-          <span className="absolute left-1/2 top-2 h-5 w-24 -translate-x-1/2 rounded-full bg-[#0f1b2d]" aria-hidden="true" />
+          <span className="absolute left-1/2 top-2 h-5 w-24 -translate-x-1/2 rounded-full bg-[#1a1a18]" aria-hidden="true" />
           <span>5G</span>
         </div>
         {children}

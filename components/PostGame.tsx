@@ -206,7 +206,7 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
                 {FORMATS.map((f) => (
                   <label
                     key={f.id}
-                    className={`flex min-h-11 cursor-pointer items-center justify-center rounded-md text-sm font-semibold has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-primary ${
+                    className={`flex min-h-11 cursor-pointer items-center justify-center rounded-md text-sm font-semibold has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent ${
                       format === f.id ? "bg-surface text-fg shadow-sm" : "text-muted"
                     }`}
                   >
@@ -274,7 +274,7 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
               Here&apos;s a clean &ldquo;who&apos;s in?&rdquo; post for your crew. Paste it in the group chat today. It already beats a
               thread of thumbs-ups.
             </p>
-            <pre className="whitespace-pre-wrap rounded-xl border border-line bg-[#e7f6ec] p-4 font-sans text-[15px] leading-relaxed text-[#0f1b2d] dark:bg-[#12301f] dark:text-[#e8f5ed]">
+            <pre className="whitespace-pre-wrap rounded-xl border border-line bg-[#e7f6ec] p-4 font-sans text-[15px] leading-relaxed text-[#1a1a18] dark:bg-[#12301f] dark:text-[#e8f5ed]">
               {message}
             </pre>
             <div className="flex flex-wrap gap-3">
@@ -292,7 +292,7 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
                 saveDraft({ title: name, day, time, place, format, have: inCount, needs, level });
                 track("app_demo_open", { location: "post_builder" });
               }}
-              className="flex items-center justify-between gap-3 rounded-xl border-2 border-primary bg-tint p-4 font-semibold text-accent hover:brightness-95"
+              className="flex items-center justify-between gap-3 rounded-xl border-2 border-accent bg-tint p-4 font-semibold text-accent hover:brightness-95"
             >
               <span>
                 See this game run in the app demo
@@ -304,7 +304,7 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
               {copied ? "Message copied to clipboard" : ""}
             </p>
             <div className="rounded-xl border border-line bg-bg-alt p-5">
-              <p className="font-bold">Want FullSquad to run this game for you?</p>
+              <p className="font-bold">Want Fullsquad to run this game for you?</p>
               <p className="mb-4 mt-1 text-sm text-muted">
                 We&apos;re opening organizer access area by area. Get one email when it&apos;s live near you. Then this post gets a join link,
                 a live roster, a fair waitlist, and one-tap backfills.

@@ -8,7 +8,7 @@ function Visual({ children }: { children: ReactNode }) {
     <div className="relative flex w-full items-center justify-center overflow-hidden rounded-2xl bg-bg-alt px-4 py-8 sm:aspect-[4/3] sm:p-8">
       <div
         className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full opacity-30 blur-3xl"
-        style={{ background: "radial-gradient(circle, #3DDC84, transparent 70%)" }}
+        style={{ background: "radial-gradient(circle, #9cc9ae, transparent 70%)" }}
         aria-hidden="true"
       />
       <div className="relative w-full max-w-[380px]">{children}</div>
@@ -55,7 +55,7 @@ function MatchVisual() {
             <p className="font-bold">Tomás</p>
             <p className="text-sm text-muted">Matched for your game</p>
           </div>
-          <span className="rounded-full bg-mint px-2.5 py-1 text-[11px] font-bold tracking-wide text-[#0f1b2d]">KEEPER</span>
+          <span className="rounded-full bg-mint px-2.5 py-1 text-[11px] font-bold tracking-wide text-[#1a1a18]">KEEPER</span>
         </div>
         <dl className="mt-5 grid grid-cols-2 gap-3">
           {rows.map(([k, v]) => (
@@ -87,7 +87,7 @@ function WaitlistVisual() {
           {q.map((p, i) => (
             <li
               key={p.n}
-              className={`flex items-center gap-3 rounded-lg p-3 ${p.you ? "bg-tint ring-2 ring-primary" : "bg-bg-alt"}`}
+              className={`flex items-center gap-3 rounded-lg p-3 ${p.you ? "bg-tint ring-2 ring-accent" : "bg-bg-alt"}`}
             >
               <span className="w-7 font-bold text-muted tabular">#{i + 1}</span>
               <span className="flex-1 font-semibold">{p.n}</span>
@@ -103,9 +103,9 @@ function WaitlistVisual() {
 function BackfillVisual() {
   return (
     <Visual>
-      <div className="rounded-2xl bg-[#0f1b2d] p-5 text-white shadow-xl">
+      <div className="rounded-2xl bg-[#1a1a18] p-5 text-white shadow-xl">
         <div className="flex items-center gap-2 text-sm text-white/70">
-          <Icon name="bell" className="size-4" /> FullSquad · now
+          <Icon name="bell" className="size-4" /> Fullsquad · now
         </div>
         <p className="mt-2 text-lg font-bold">A spot opened for Sunday 8:30 at Piccolo</p>
         <p className="mt-1 text-sm text-white/70">
@@ -113,7 +113,7 @@ function BackfillVisual() {
         </p>
         <div className="mt-5 grid grid-cols-2 gap-3">
           <span className="btn btn-sm border border-white/25 text-white">Pass</span>
-          <span className="btn btn-sm bg-mint text-[#0f1b2d]">I&apos;m In</span>
+          <span className="btn btn-sm btn-primary">I&apos;m In</span>
         </div>
       </div>
     </Visual>
@@ -136,21 +136,21 @@ function PitchVisual() {
         <p className="flex items-center gap-2 rounded-lg bg-[#fef3c7] px-3 py-2 text-sm font-bold text-[#92400e]">
           <Icon name="warning" className="size-4" /> No keeper yet
         </p>
-        <div className="relative mx-auto mt-3 aspect-[4/3] w-full overflow-hidden rounded-lg bg-[#12a150]">
+        <div className="relative mx-auto mt-3 aspect-[4/3] w-full overflow-hidden rounded-lg bg-[#2e5a45]">
           <div className="absolute inset-2 rounded border-2 border-white/60" />
           <div className="absolute bottom-2 left-1/2 h-[22%] w-[44%] -translate-x-1/2 border-2 border-b-0 border-white/60" />
           <div className="absolute left-1/2 top-2 size-16 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/60" />
           {players.map((pl, i) => (
             <span
               key={i}
-              className="absolute flex size-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[10px] font-extrabold text-[#0f1b2d] shadow"
+              className="absolute flex size-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[10px] font-extrabold text-[#1a1a18] shadow"
               style={{ left: `${pl.x}%`, top: `${pl.y}%` }}
             >
               {pl.p}
             </span>
           ))}
           <span
-            className="absolute bottom-[6%] left-1/2 flex size-9 -translate-x-1/2 items-center justify-center rounded-full border-2 border-dashed border-[#ffd23f] bg-[#0f1b2d]/40 text-[10px] font-extrabold text-[#ffd23f]"
+            className="absolute bottom-[6%] left-1/2 flex size-9 -translate-x-1/2 items-center justify-center rounded-full border-2 border-dashed border-[#f3b0a9] bg-[#1a1a18]/40 text-[10px] font-extrabold text-[#f3b0a9]"
           >
             GK?
           </span>

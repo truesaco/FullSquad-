@@ -73,9 +73,8 @@ export function Nav() {
           Skip to content
         </a>
         <nav className="mx-auto flex h-[60px] max-w-[1440px] items-center justify-between gap-4 px-4 md:px-8 lg:h-[72px]" aria-label="Main">
-          <a href="#top" className="flex items-center gap-2 text-lg font-extrabold tracking-tight" aria-label="FullSquad home">
-            <Logo />
-            <span>FullSquad</span>
+          <a href="#top" className="flex items-center" aria-label="Fullsquad home">
+            <Logo className="text-[22px] lg:text-[24px]" />
           </a>
 
           <ul className="hidden items-center gap-1 whitespace-nowrap xl:flex">

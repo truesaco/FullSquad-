@@ -124,8 +124,8 @@ function Screen({ step }: { step: number }) {
           <span className="text-xs font-bold text-accent">Tapped In</span>
         </li>
       </ul>
-      <div className="anim-toast mt-5 flex items-center gap-2.5 rounded-xl bg-[#0f1b2d] px-3 py-2.5 text-white">
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-mint text-[#0f1b2d]">
+      <div className="anim-toast mt-5 flex items-center gap-2.5 rounded-xl bg-[#1a1a18] px-3 py-2.5 text-white">
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-mint text-[#1a1a18]">
           <Icon name="check" className="size-4" strokeWidth={3} />
         </span>
         <span className="text-[13px] leading-tight">
@@ -163,7 +163,7 @@ export function Walkthrough() {
       <div className="container-x">
         <div className="reveal mx-auto mb-12 max-w-3xl text-center">
           <h2 id="walkthrough-title" className="h2">
-            See FullSquad in Action
+            See Fullsquad in Action
           </h2>
           <p className="mt-3 text-lg text-muted">Four steps. Tap through them.</p>
         </div>
@@ -183,7 +183,7 @@ export function Walkthrough() {
                 tabIndex={step === i ? 0 : -1}
                 onClick={() => go(i)}
                 className={`flex gap-4 rounded-xl border p-5 text-left transition-colors duration-300 ${
-                  step === i ? "border-primary bg-tint" : "border-line hover:bg-bg-alt"
+                  step === i ? "border-accent bg-tint" : "border-line hover:bg-bg-alt"
                 }`}
               >
                 <span

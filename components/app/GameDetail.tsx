@@ -246,7 +246,7 @@ export function GameDetail({ id }: { id: string }) {
 
           <section className="card p-5" aria-labelledby="log-title">
             <h2 id="log-title" className="mb-3 font-bold">
-              What FullSquad did
+              What Fullsquad did
             </h2>
             {g.log.length ? (
               <ol className="grid gap-3">

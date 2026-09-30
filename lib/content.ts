@@ -1,11 +1,11 @@
 export const FAQS = [
   {
     q: "Do players ever pay?",
-    a: "No. Players use FullSquad free, forever. Joining, confirming, and waitlists never cost anything.",
+    a: "No. Players use Fullsquad free, forever. Joining, confirming, and waitlists never cost anything.",
   },
   {
     q: "Do you collect field fees?",
-    a: "No. FullSquad never touches money. If your crew splits a field rental, keep doing it however you do today. We don't take a cut and we never ask for payment details.",
+    a: "No. Fullsquad never touches money. If your crew splits a field rental, keep doing it however you do today. We don't take a cut and we never ask for payment details.",
   },
   {
     q: "Can I switch plans?",
@@ -21,7 +21,7 @@ export const FAQS = [
   },
   {
     q: "How is this different from pay-to-play pickup apps?",
-    a: "Those apps sell spots in games they run, usually with strangers at booked fields, and charge per game with strict cancellation windows. FullSquad is for the game you already run with your crew. It's free, it fills your crew first, and there's nothing to refund.",
+    a: "Those apps sell spots in games they run, usually with strangers at booked fields, and charge per game with strict cancellation windows. Fullsquad is for the game you already run with your crew. It's free, it fills your crew first, and there's nothing to refund.",
   },
 ];
 
