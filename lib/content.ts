@@ -1,15 +1,19 @@
 export const FAQS = [
   {
     q: "Do players ever pay?",
-    a: "No. Players use FullSquad free, forever. Joining, confirming, and waitlists never cost anything.",
+    a: "No. Players use Fullsquad free, forever. Joining, confirming, and waitlists never cost anything.",
   },
   {
     q: "Do you collect field fees?",
-    a: "No. FullSquad never touches money. If your crew splits a field rental, keep doing it however you do today. We don't take a cut and we never ask for payment details.",
+    a: "No. Fullsquad never touches money. If your crew splits a field rental, keep doing it however you do today. We don't take a cut and we never ask for payment details.",
   },
   {
     q: "Can I switch plans?",
     a: "Yes. Player and Organizer are free forever. When Organizer Pro launches you can try it, and drop back to free any time without losing your crew or your games.",
+  },
+  {
+    q: "Do I have to say which positions I need?",
+    a: "No. Leave it on \"Any position\" and anyone who fits your level can grab a spot. Or toggle exactly what you're short on, like 1 keeper and 2 defenders, and the rest stay open to anyone.",
   },
   {
     q: "What if my crew won't download another app?",
@@ -17,7 +21,7 @@ export const FAQS = [
   },
   {
     q: "How is this different from pay-to-play pickup apps?",
-    a: "Those apps sell spots in games they run, usually with strangers at booked fields, and charge per game with strict cancellation windows. FullSquad is for the game you already run with your crew. It's free, it fills your crew first, and there's nothing to refund.",
+    a: "Those apps sell spots in games they run, usually with strangers at booked fields, and charge per game with strict cancellation windows. Fullsquad is for the game you already run with your crew. It's free, it fills your crew first, and there's nothing to refund.",
   },
 ];
 

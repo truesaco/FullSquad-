@@ -1,14 +1,30 @@
-# FullSquad: Landing Page
+# Fullsquad: Landing Page
 
-Responsive marketing site for **FullSquad**, the free app that fills pickup soccer games by position and skill, runs a fair waitlist, and backfills dropouts with one tap.
+Responsive marketing site for **Fullsquad**, the free app that fills pickup soccer games by position and skill, runs a fair waitlist, and backfills dropouts with one tap.
 
 Built from the Landing PRD, the Brand Identity & Design System, and the Research Summary. The competitive scan and the page changes that came out of it are in [`docs/market-research.md`](docs/market-research.md).
 
+- **Brand:** Fullsquad logo system (1-4-4-2 formation mark, Sora wordmark; Pitch, Keeper, Chalk and Ink). See [`docs/brand.md`](docs/brand.md).
 - **Stack:** Next.js (static export), React, TypeScript, Tailwind CSS v4
 - **Responsive:** mobile-first from 360px phones through tablets to 1440px+ desktops, with a slide-out menu and a sticky "Post a Game" button on phones
 - **Light and dark mode:** follows the system setting, with a toggle that remembers the choice
 - **Accessible:** skip link, visible focus rings, keyboard-navigable walkthrough tabs, `aria-live` updates for the calculator and roster, reduced-motion support, and status never shown by color alone
 - **Lead capture:** waitlist form backed by **Netlify Forms**, so there's no server to run
+
+## App demo (`/app/`)
+
+The site also includes a working demo of the Fullsquad app, which runs entirely in the browser with simulated players. It's responsive: on a phone it shows a bottom tab bar like a native app, and on a tablet or desktop it's a web app with a sidebar. Installing the site to a home screen (PWA) opens straight into the app.
+
+| Screen | What you can do |
+|---|---|
+| **Feed** | Toggle the positions you play (GK, DEF, MID, FWD). Games that need you rise to the top. Tap In, or join the waitlist. |
+| **My Games** | See the games you organize and the ones you're playing in. |
+| **Post** | Choose the format, then toggle the positions you need (with a count for each) or leave it on **Any position**. Optionally send it to your crew right away. |
+| **Game** | Live roster and position balance, the waitlist, and a log of everything Fullsquad did. Simulate a dropout to watch the backfill offer roll down the waitlist (15 seconds stands in for 15 minutes). |
+| **Crew** | Your regulars with their positions and attendance, a position filter, and nearby players you can add. |
+| **Profile** | Your positions and skill, notification settings, theme, and a reset for the demo data. |
+
+The "Post a game" builder on the landing page hands its game to the demo ("See this game run in the app demo"). Demo data is saved in `localStorage`, and the demo logic lives in `lib/demo/model.ts`.
 
 ## Run it locally
 
@@ -51,7 +67,8 @@ components/     one file per PRD section: Hero, Problem, Solution, Features,
                 TimeBackCalculator, Compare, Story, Pricing, Trust, Walkthrough,
                 FinalCTA, Footer, plus PostGame (builder dialog), WaitlistForm,
                 Nav, and shared ui (RosterMeter, PhoneFrame, …)
-lib/            site config, content, analytics helper
+components/app/ the app demo (shell, screens, game detail, store)
+lib/            site config, content, analytics helper, positions, demo model
 public/         icons, manifest, OG image, __forms.html (Netlify form registration)
 docs/           market research
 ```

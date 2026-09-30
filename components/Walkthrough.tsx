@@ -7,7 +7,7 @@ import { GameOnBadge, PhoneFrame, RosterMeter } from "./ui";
 import { track } from "@/lib/track";
 
 const STEPS = [
-  { title: "Post what you need.", body: 'Day, place, format, and "keeper preferred." One post.' },
+  { title: "Post what you need.", body: "Day, place, format, and which positions you need, or anyone. One post." },
   { title: "Crew and matched players fill in.", body: "Your regulars see it first, then nearby players who fit." },
   { title: "Overflow goes to the waitlist.", body: "Sign-up order, visible to everyone. Nobody gets cut by you." },
   { title: "A dropout gets backfilled.", body: "The next player taps In. You find out after it's handled." },
@@ -50,7 +50,7 @@ function Screen({ step }: { step: number }) {
           <Row k="When" v="Wed 7:30 PM" />
           <Row k="Where" v="Piccolo Park" />
           <Row k="Need" v="14 players" />
-          <Row k="Note" v="Keeper preferred" />
+          <Row k="Positions" v="1 GK · 1 DEF · any" />
         </div>
         <div className="mt-4 grid grid-cols-4 gap-1 rounded-lg bg-bg-alt p-1 text-center text-xs font-semibold">
           {["5v5", "7v7", "8v8", "11v11"].map((f) => (
@@ -124,8 +124,8 @@ function Screen({ step }: { step: number }) {
           <span className="text-xs font-bold text-accent">Tapped In</span>
         </li>
       </ul>
-      <div className="anim-toast mt-5 flex items-center gap-2.5 rounded-xl bg-[#0f1b2d] px-3 py-2.5 text-white">
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-mint text-[#0f1b2d]">
+      <div className="anim-toast mt-5 flex items-center gap-2.5 rounded-xl bg-[#1a1a18] px-3 py-2.5 text-white">
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-mint text-[#1a1a18]">
           <Icon name="check" className="size-4" strokeWidth={3} />
         </span>
         <span className="text-[13px] leading-tight">
@@ -163,7 +163,7 @@ export function Walkthrough() {
       <div className="container-x">
         <div className="reveal mx-auto mb-12 max-w-3xl text-center">
           <h2 id="walkthrough-title" className="h2">
-            See FullSquad in Action
+            See Fullsquad in Action
           </h2>
           <p className="mt-3 text-lg text-muted">Four steps. Tap through them.</p>
         </div>
@@ -183,7 +183,7 @@ export function Walkthrough() {
                 tabIndex={step === i ? 0 : -1}
                 onClick={() => go(i)}
                 className={`flex gap-4 rounded-xl border p-5 text-left transition-colors duration-300 ${
-                  step === i ? "border-primary bg-tint" : "border-line hover:bg-bg-alt"
+                  step === i ? "border-accent bg-tint" : "border-line hover:bg-bg-alt"
                 }`}
               >
                 <span

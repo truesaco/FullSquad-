@@ -148,10 +148,10 @@ export function TimeBackCalculator() {
               <p className="text-sm text-muted">That&apos;s about {fmt(r.hoursSaved / 8, 1)} full Saturdays.</p>
             </div>
 
-            <div className="grid gap-3" role="img" aria-label={`Group chat: ${fmt(r.nowHours)} hours per year. FullSquad: ${fmt(r.fullSquadHrs, 1)} hours per year.`}>
+            <div className="grid gap-3" role="img" aria-label={`Group chat: ${fmt(r.nowHours)} hours per year. Fullsquad: ${fmt(r.fullSquadHrs, 1)} hours per year.`}>
               {[
-                { label: "Group chat", v: r.nowHours, cls: "bg-[#5b6675] dark:bg-[#a3aebd]" },
-                { label: "FullSquad", v: r.fullSquadHrs, cls: "bg-brand-gradient" },
+                { label: "Group chat", v: r.nowHours, cls: "bg-[#5e5d58] dark:bg-[#a9b8ae]" },
+                { label: "Fullsquad", v: r.fullSquadHrs, cls: "bg-brand-gradient" },
               ].map((b) => (
                 <div key={b.label}>
                   <div className="flex justify-between text-sm">
@@ -189,7 +189,7 @@ export function TimeBackCalculator() {
               Get These Hours Back
             </PostGameButton>
             <p className="text-xs text-muted">
-              Estimates, not guarantees. Assumes 15 minutes per dropout scramble and 10 minutes per game with FullSquad, over 52 weeks.
+              Estimates, not guarantees. Assumes 15 minutes per dropout scramble and 10 minutes per game with Fullsquad, over 52 weeks.
             </p>
           </div>
         </div>

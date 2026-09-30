@@ -22,7 +22,7 @@ export function Trust() {
               </li>
             ))}
           </ul>
-          <div className="mt-8 rounded-xl bg-[#e7f6ec] p-4 text-[#0f1b2d] dark:bg-[#12301f] dark:text-[#e8f5ed]" aria-label="Example chat message">
+          <div className="mt-8 rounded-xl bg-[#e7f6ec] p-4 text-[#1a1a18] dark:bg-[#12301f] dark:text-[#e8f5ed]" aria-label="Example chat message">
             <p className="text-sm">Trying something new. Tap to claim your spot or you&apos;re not on the list.</p>
             <p className="mt-3 flex items-center gap-2 rounded-lg bg-white/80 px-3 py-2 text-sm font-semibold text-turf dark:bg-black/30 dark:text-mint">
               <Icon name="link" className="size-4" />

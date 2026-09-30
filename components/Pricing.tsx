@@ -110,7 +110,7 @@ export function Pricing() {
               >
                 {b === "monthly" ? "Monthly" : "Annual"}
                 {b === "annual" ? (
-                  <span className="rounded-full bg-volt px-2 py-0.5 text-[11px] font-bold text-[#0f1b2d]">Save 25%</span>
+                  <span className="rounded-full bg-volt px-2 py-0.5 text-[11px] font-bold text-[#1a1a18]">Save 25%</span>
                 ) : null}
               </button>
             ))}
@@ -139,7 +139,7 @@ export function Pricing() {
           </div>
 
           {/* Organizer */}
-          <div className="card reveal relative order-1 flex h-full flex-col !border-2 !border-primary p-8 shadow-xl transition-transform duration-300 hover:-translate-y-3 lg:order-2 lg:-translate-y-2">
+          <div className="card reveal relative order-1 flex h-full flex-col !border-2 !border-accent p-8 shadow-xl transition-transform duration-300 hover:-translate-y-3 lg:order-2 lg:-translate-y-2">
             <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-turf px-3 py-1 text-xs font-bold tracking-wide text-white">
               MOST POPULAR
             </span>

@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
 import { SITE } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Privacy Policy · FullSquad", alternates: { canonical: "/privacy/" } };
+export const metadata: Metadata = { title: "Privacy Policy · Fullsquad", alternates: { canonical: "/privacy/" } };
 
 export default function Privacy() {
   return (
     <LegalPage title="Privacy Policy" updated="September 2026">
-      <p>FullSquad is in early access. This page explains, in plain language, what we collect on this website and why.</p>
+      <p>Fullsquad is in early access. This page explains, in plain language, what we collect on this website and why.</p>
       <h2>What we collect</h2>
       <ul>
         <li>Your email address, and optionally your ZIP code or city and whether you organize or play, when you join the waitlist.</li>
@@ -16,7 +16,7 @@ export default function Privacy() {
       </ul>
       <h2>How we use it</h2>
       <p>
-        To email you when FullSquad opens in your area and to understand which parts of this page are useful. We don&apos;t sell your data,
+        To email you when Fullsquad opens in your area and to understand which parts of this page are useful. We don&apos;t sell your data,
         and we never collect payment details.
       </p>
       <h2>Where it&apos;s stored</h2>
