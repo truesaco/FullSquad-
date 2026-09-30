@@ -1,4 +1,7 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { useLang, type L } from "@/lib/i18n";
 import { Icon, type IconName } from "./icons";
 import { Avatar, SectionHeader } from "./ui";
 import { BackfillCountdown } from "./BackfillCountdown";
@@ -17,22 +20,25 @@ function Visual({ children }: { children: ReactNode }) {
 }
 
 function PostVisual() {
+  const { tr } = useLang();
   return (
     <Visual>
       <div className="card p-4">
-        <p className="caption text-muted">Diego posted</p>
-        <p className="mt-1 font-semibold">Sun 8:30 at Piccolo. 7v7. Need 3: 1 GK · 1 DEF · 1 any position.</p>
+        <p className="caption text-muted">{tr("Diego posted", "Diego publicó")}</p>
+        <p className="mt-1 font-semibold">
+          {tr("Sun 8:30 at Piccolo. 7v7. Need 3: 1 GK · 1 DEF · 1 any position.", "Dom 8:30 en Piccolo. 7v7. Faltan 3: 1 GK · 1 DEF · 1 cualquier posición.")}
+        </p>
       </div>
       <ol className="mt-4 grid gap-3">
         <li className="card flex items-center gap-3 !border-2 !border-mint p-3">
           <span className="flex size-8 items-center justify-center rounded-full bg-turf text-sm font-bold text-white">1</span>
-          <span className="flex-1 font-semibold">Your crew sees it first</span>
-          <span className="rounded-full bg-tint px-2 py-0.5 text-xs font-bold text-accent">Now</span>
+          <span className="flex-1 font-semibold">{tr("Your crew sees it first", "Tu grupo lo ve primero")}</span>
+          <span className="rounded-full bg-tint px-2 py-0.5 text-xs font-bold text-accent">{tr("Now", "Ahora")}</span>
         </li>
         <li className="card flex items-center gap-3 p-3 opacity-80">
           <span className="flex size-8 items-center justify-center rounded-full bg-bg-alt text-sm font-bold">2</span>
-          <span className="flex-1 font-semibold">Nearby players who fit</span>
-          <span className="rounded-full bg-bg-alt px-2 py-0.5 text-xs font-bold text-muted">Next</span>
+          <span className="flex-1 font-semibold">{tr("Nearby players who fit", "Jugadores cercanos que encajan")}</span>
+          <span className="rounded-full bg-bg-alt px-2 py-0.5 text-xs font-bold text-muted">{tr("Next", "Después")}</span>
         </li>
       </ol>
     </Visual>
@@ -40,11 +46,12 @@ function PostVisual() {
 }
 
 function MatchVisual() {
+  const { tr } = useLang();
   const rows = [
-    ["Position", "GK"],
-    ["Skill", "Intermediate"],
-    ["Distance", "3 mi"],
-    ["Shows up", "11 of 12"],
+    [tr("Position", "Posición"), "GK"],
+    [tr("Skill", "Nivel"), tr("Intermediate", "Intermedio")],
+    [tr("Distance", "Distancia"), "3 mi"],
+    [tr("Shows up", "Asistencia"), tr("11 of 12", "11 de 12")],
   ];
   return (
     <Visual>
@@ -53,9 +60,9 @@ function MatchVisual() {
           <Avatar name="Tomás M" className="size-11 text-sm" />
           <div className="flex-1">
             <p className="font-bold">Tomás</p>
-            <p className="text-sm text-muted">Matched for your game</p>
+            <p className="text-sm text-muted">{tr("Matched for your game", "Ideal para tu partido")}</p>
           </div>
-          <span className="rounded-full bg-mint px-2.5 py-1 text-[11px] font-bold tracking-wide text-[#1a1a18]">KEEPER</span>
+          <span className="rounded-full bg-mint px-2.5 py-1 text-[11px] font-bold tracking-wide text-[#1a1a18]">{tr("KEEPER", "PORTERO")}</span>
         </div>
         <dl className="mt-5 grid grid-cols-2 gap-3">
           {rows.map(([k, v]) => (
@@ -71,17 +78,18 @@ function MatchVisual() {
 }
 
 function WaitlistVisual() {
+  const { tr } = useLang();
   const q = [
-    { n: "Luis", s: "Next up", you: false },
-    { n: "You", s: "You're #2", you: true },
-    { n: "Santi", s: "Waiting", you: false },
+    { n: "Luis", s: tr("Next up", "Sigue"), you: false },
+    { n: tr("You", "Tú"), s: tr("You're #2", "Eres el #2"), you: true },
+    { n: "Santi", s: tr("Waiting", "Esperando"), you: false },
   ];
   return (
     <Visual>
       <div className="card p-5">
         <div className="flex items-baseline justify-between">
-          <p className="font-bold">Waitlist</p>
-          <p className="text-sm text-muted">In sign-up order</p>
+          <p className="font-bold">{tr("Waitlist", "Lista de espera")}</p>
+          <p className="text-sm text-muted">{tr("In sign-up order", "En orden de inscripción")}</p>
         </div>
         <ol className="mt-4 grid gap-2">
           {q.map((p, i) => (
@@ -101,19 +109,20 @@ function WaitlistVisual() {
 }
 
 function BackfillVisual() {
+  const { tr } = useLang();
   return (
     <Visual>
       <div className="rounded-2xl bg-[#1a1a18] p-5 text-white shadow-xl">
         <div className="flex items-center gap-2 text-sm text-white/70">
-          <Icon name="bell" className="size-4" /> Fullsquad · now
+          <Icon name="bell" className="size-4" /> Fullsquad · {tr("now", "ahora")}
         </div>
-        <p className="mt-2 text-lg font-bold">A spot opened for Sunday 8:30 at Piccolo</p>
+        <p className="mt-2 text-lg font-bold">{tr("A spot opened for Sunday 8:30 at Piccolo", "Se abrió un cupo para el domingo 8:30 en Piccolo")}</p>
         <p className="mt-1 text-sm text-white/70">
-          Rolls to the next player in <BackfillCountdown />
+          {tr("Rolls to the next player in", "Pasa al siguiente jugador en")} <BackfillCountdown />
         </p>
         <div className="mt-5 grid grid-cols-2 gap-3">
-          <span className="btn btn-sm border border-white/25 text-white">Pass</span>
-          <span className="btn btn-sm btn-primary">I&apos;m In</span>
+          <span className="btn btn-sm border border-white/25 text-white">{tr("Pass", "Paso")}</span>
+          <span className="btn btn-sm btn-primary">{tr("I'm In", "Me apunto")}</span>
         </div>
       </div>
     </Visual>
@@ -121,6 +130,7 @@ function BackfillVisual() {
 }
 
 function PitchVisual() {
+  const { tr } = useLang();
   // Positions on a vertical half-pitch (percent coordinates).
   const players = [
     { p: "DEF", x: 30, y: 72 },
@@ -134,7 +144,7 @@ function PitchVisual() {
     <Visual>
       <div className="card p-4">
         <p className="flex items-center gap-2 rounded-lg bg-[#fef3c7] px-3 py-2 text-sm font-bold text-[#92400e]">
-          <Icon name="warning" className="size-4" /> No keeper yet
+          <Icon name="warning" className="size-4" /> {tr("No keeper yet", "Todavía no hay portero")}
         </p>
         <div className="relative mx-auto mt-3 aspect-[4/3] w-full overflow-hidden rounded-lg bg-[#2e5a45]">
           <div className="absolute inset-2 rounded border-2 border-white/60" />
@@ -161,65 +171,81 @@ function PitchVisual() {
   );
 }
 
-const FEATURES: { n: string; title: string; body: string; metric: string; icon: IconName; visual: ReactNode; alt: string }[] = [
+const FEATURES: { n: string; title: L; body: L; metric: L; icon: IconName; visual: ReactNode; alt: L }[] = [
   {
     n: "01",
-    title: "Post once, crew first",
-    body: "One plain-language post reaches the regulars first, then nearby players who fit. No re-posting or chasing.",
-    metric: "1 post replaces a night of texting",
+    title: { en: "Post once, crew first", es: "Publica una vez, tu grupo primero" },
+    body: {
+      en: "One plain-language post reaches the regulars first, then nearby players who fit. No re-posting or chasing.",
+      es: "Una publicación sencilla les llega primero a los de siempre y después a jugadores cercanos que encajan. Sin volver a publicar ni perseguir a nadie.",
+    },
+    metric: { en: "1 post replaces a night of texting", es: "1 publicación reemplaza una noche de mensajes" },
     icon: "send",
     visual: <PostVisual />,
-    alt: "A game post reaching your crew first, then nearby players",
+    alt: { en: "A game post reaching your crew first, then nearby players", es: "Una publicación que llega primero a tu grupo y luego a jugadores cercanos" },
   },
   {
     n: "02",
-    title: "Position & skill matching",
-    body: "Toggle the positions you need (keeper, defender, midfielder, forward) or leave it open to anyone. Matching uses position, skill, distance, and attendance history, so each spot reaches players who actually fit it.",
-    metric: "4 signals",
+    title: { en: "Position & skill matching", es: "Emparejamiento por posición y nivel" },
+    body: {
+      en: "Toggle the positions you need (keeper, defender, midfielder, forward) or leave it open to anyone. Matching uses position, skill, distance, and attendance history, so each spot reaches players who actually fit it.",
+      es: "Activa las posiciones que necesitas (portero, defensa, mediocampista, delantero) o déjalo abierto a cualquiera. El emparejamiento usa posición, nivel, distancia e historial de asistencia, así cada cupo le llega a quien de verdad encaja.",
+    },
+    metric: { en: "4 signals", es: "4 señales" },
     icon: "sliders",
     visual: <MatchVisual />,
-    alt: "A matched player card showing position, skill, distance and attendance",
+    alt: { en: "A matched player card showing position, skill, distance and attendance", es: "Tarjeta de un jugador con posición, nivel, distancia y asistencia" },
   },
   {
     n: "03",
-    title: "Automatic, fair waitlist",
-    body: 'Overflow gets in line by sign-up order and everyone can see their spot, so there are no "sorry bro, we\'re full" texts.',
-    metric: "0 rejection texts",
+    title: { en: "Automatic, fair waitlist", es: "Lista de espera automática y justa" },
+    body: {
+      en: 'Overflow gets in line by sign-up order and everyone can see their spot, so there are no "sorry bro, we\'re full" texts.',
+      es: 'Los que sobran hacen fila por orden de inscripción y todos ven su lugar, así que se acabaron los mensajes de "perdón, ya estamos llenos".',
+    },
+    metric: { en: "0 rejection texts", es: "0 mensajes de rechazo" },
     icon: "queue",
     visual: <WaitlistVisual />,
-    alt: "A waitlist in sign-up order where you are number 2",
+    alt: { en: "A waitlist in sign-up order where you are number 2", es: "Una lista de espera por orden de inscripción donde eres el número 2" },
   },
   {
     n: "04",
-    title: "One-tap backfills",
-    body: "When someone drops, the next person gets a notification and taps In or Pass. If they don't answer, it rolls to the next person automatically.",
-    metric: "1 tap",
+    title: { en: "One-tap backfills", es: "Reemplazos con un toque" },
+    body: {
+      en: "When someone drops, the next person gets a notification and taps In or Pass. If they don't answer, it rolls to the next person automatically.",
+      es: "Cuando alguien se baja, al siguiente le llega una notificación y toca Me apunto o Paso. Si no responde, pasa automáticamente al siguiente.",
+    },
+    metric: { en: "1 tap", es: "1 toque" },
     icon: "refresh",
     visual: <BackfillVisual />,
-    alt: "A notification that a spot opened with In and Pass buttons and a countdown",
+    alt: { en: "A notification that a spot opened with In and Pass buttons and a countdown", es: "Una notificación de cupo libre con botones Me apunto y Paso y una cuenta regresiva" },
   },
   {
     n: "05",
-    title: "Position balance check",
-    body: 'A mini pitch view flags gaps like "No keeper yet" before game day.',
-    metric: "GK · DEF · MID · FWD at a glance",
+    title: { en: "Position balance check", es: "Balance de posiciones" },
+    body: {
+      en: 'A mini pitch view flags gaps like "No keeper yet" before game day.',
+      es: 'Una mini cancha te avisa de huecos como "Todavía no hay portero" antes del partido.',
+    },
+    metric: { en: "GK · DEF · MID · FWD at a glance", es: "GK · DEF · MID · FWD de un vistazo" },
     icon: "users",
     visual: <PitchVisual />,
-    alt: "A mini pitch with defenders, a midfielder and three forwards, flagging no keeper",
+    alt: { en: "A mini pitch with defenders, a midfielder and three forwards, flagging no keeper", es: "Una mini cancha con defensas, un mediocampista y tres delanteros, que avisa que falta portero" },
   },
 ];
 
 export function Features() {
+  const { t, tr } = useLang();
   return (
     <section id="features" className="section" aria-labelledby="features-title">
       <div className="container-x">
         <SectionHeader
           id="features-title"
-          eyebrow="Features"
+          eyebrow={tr("Features", "Funciones")}
           title={
             <>
-              Stop chasing headcounts.
-              <br className="hidden sm:block" /> Here&apos;s what does the chasing for you.
+              {tr("Stop chasing headcounts.", "Deja de perseguir gente.")}
+              <br className="hidden sm:block" /> {tr("Here's what does the chasing for you.", "Esto lo hace por ti.")}
             </>
           }
         />
@@ -233,14 +259,14 @@ export function Features() {
                   </span>
                   <span className="font-serif text-3xl text-muted/60">{f.n}</span>
                 </div>
-                <h3 className="h3 mt-5">{f.title}</h3>
-                <p className="mt-3 text-lg text-muted">{f.body}</p>
+                <h3 className="h3 mt-5">{t(f.title)}</h3>
+                <p className="mt-3 text-lg text-muted">{t(f.body)}</p>
                 <p className="mt-5 inline-flex items-center gap-2 rounded-full border border-line bg-surface px-4 py-2 text-sm font-bold">
                   <span className="size-2 rounded-full bg-mint" aria-hidden="true" />
-                  {f.metric}
+                  {t(f.metric)}
                 </p>
               </div>
-              <div className="reveal" style={{ ["--delay" as string]: "100ms" }} role="img" aria-label={f.alt}>
+              <div className="reveal" style={{ ["--delay" as string]: "100ms" }} role="img" aria-label={t(f.alt)}>
                 <div aria-hidden="true">{f.visual}</div>
               </div>
             </article>

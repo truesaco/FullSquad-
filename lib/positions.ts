@@ -10,6 +10,15 @@ export const POS_NAME: Record<Pos, string> = {
   FWD: "Forward",
 };
 
+export const POS_NAME_ES: Record<Pos, string> = {
+  GK: "Portero",
+  DEF: "Defensa",
+  MID: "Mediocampista",
+  FWD: "Delantero",
+};
+
+export const posName = (p: Pos, lang: "en" | "es" = "en") => (lang === "es" ? POS_NAME_ES[p] : POS_NAME[p]);
+
 export const emptyNeeds = (): Needs => ({ GK: 0, DEF: 0, MID: 0, FWD: 0, ANY: 0 });
 
 export const totalNeeds = (n: Needs) => n.GK + n.DEF + n.MID + n.FWD + n.ANY;
@@ -28,9 +37,14 @@ export function fitNeeds(n: Needs, total: number): Needs {
 }
 
 /** "1 GK · 2 DEF · 1 any position" or "any position". */
-export function describeNeeds(n: Needs, { short = false }: { short?: boolean } = {}) {
+export function describeNeeds(n: Needs, { short = false, lang = "en" }: { short?: boolean; lang?: "en" | "es" } = {}) {
+  const es = lang === "es";
   const parts = POSITIONS.filter((p) => n[p] > 0).map((p) => `${n[p]} ${p}`);
-  if (n.ANY > 0) parts.push(parts.length ? `${n.ANY} any` : short ? "any position" : `${n.ANY} any position`);
+  if (n.ANY > 0) {
+    const anyWord = es ? "cualquiera" : "any";
+    const anyPos = es ? "cualquier posición" : "any position";
+    parts.push(parts.length ? `${n.ANY} ${anyWord}` : short ? anyPos : `${n.ANY} ${anyPos}`);
+  }
   return parts.join(" · ");
 }
 

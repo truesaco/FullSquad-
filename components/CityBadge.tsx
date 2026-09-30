@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Icon } from "./icons";
+import { useLang } from "@/lib/i18n";
 
 /** Pre-headline pill. `?city=Miami` personalizes it for city/park-specific campaigns. */
 export function CityBadge() {
+  const { tr } = useLang();
   const [city, setCity] = useState<string | null>(null);
   useEffect(() => {
     const raw = new URLSearchParams(window.location.search).get("city");
@@ -15,7 +17,9 @@ export function CityBadge() {
       <span className="flex size-5 items-center justify-center rounded-full bg-turf text-white">
         <Icon name="check" className="size-3" strokeWidth={3} />
       </span>
-      Free for every player · Built for {city ? `pickup crews in ${city}` : "pickup crews"}
+      {city
+        ? tr(`Free for every player · Built for pickup crews in ${city}`, `Gratis para todos los jugadores · Hecho para grupos de fútbol en ${city}`)
+        : tr("Free for every player · Built for pickup crews", "Gratis para todos los jugadores · Hecho para grupos de fútbol")}
     </p>
   );
 }

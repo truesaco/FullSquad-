@@ -3,6 +3,7 @@
 import { useId, useState, type FormEvent } from "react";
 import { Icon } from "./icons";
 import { track } from "@/lib/track";
+import { useLang } from "@/lib/i18n";
 
 type Status = "idle" | "loading" | "success" | "error";
 
@@ -24,7 +25,7 @@ export function WaitlistForm({
   defaultRole = "Organizer",
   extra = {},
   compact = false,
-  submitLabel = "Notify Me",
+  submitLabel,
 }: {
   source: string;
   defaultRole?: "Organizer" | "Player";
@@ -32,6 +33,7 @@ export function WaitlistForm({
   compact?: boolean;
   submitLabel?: string;
 }) {
+  const { tr } = useLang();
   const uid = useId();
   const [email, setEmail] = useState("");
   const [location, setLocation] = useState("");
@@ -43,8 +45,8 @@ export function WaitlistForm({
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const next: typeof errors = {};
-    if (!EMAIL_RE.test(email.trim())) next.email = "Enter a valid email, like you@email.com.";
-    if (!consent) next.consent = "Check the box so we can email you.";
+    if (!EMAIL_RE.test(email.trim())) next.email = tr("Enter a valid email, like you@email.com.", "Escribe un correo válido, como tu@correo.com.");
+    if (!consent) next.consent = tr("Check the box so we can email you.", "Marca la casilla para que podamos escribirte.");
     setErrors(next);
     if (Object.keys(next).length) return;
 
@@ -73,8 +75,8 @@ export function WaitlistForm({
         <span className="anim-pop mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-turf text-white">
           <Icon name="check" className="size-6" strokeWidth={3} />
         </span>
-        <p className="text-lg font-bold">You&apos;re on the list.</p>
-        <p className="mt-1 text-sm text-muted">One email when Fullsquad goes live near you. That&apos;s it.</p>
+        <p className="text-lg font-bold">{tr("You're on the list.", "Ya estás en la lista.")}</p>
+        <p className="mt-1 text-sm text-muted">{tr("One email when Fullsquad goes live near you. That's it.", "Un solo correo cuando Fullsquad llegue a tu zona. Nada más.")}</p>
       </div>
     );
   }
@@ -89,7 +91,7 @@ export function WaitlistForm({
       <div className={compact ? "grid gap-4" : "grid gap-4 sm:grid-cols-2"}>
         <div>
           <label htmlFor={`${uid}-email`} className="mb-1.5 block text-sm font-medium">
-            Email
+            {tr("Email", "Correo")}
           </label>
           <input
             id={`${uid}-email`}
@@ -97,7 +99,7 @@ export function WaitlistForm({
             inputMode="email"
             autoComplete="email"
             required
-            placeholder="you@email.com"
+            placeholder={tr("you@email.com", "tu@correo.com")}
             className="input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -112,7 +114,7 @@ export function WaitlistForm({
         </div>
         <div>
           <label htmlFor={`${uid}-loc`} className="mb-1.5 block text-sm font-medium">
-            ZIP or city <span className="font-normal text-muted">(optional)</span>
+            {tr("ZIP or city", "Código postal o ciudad")} <span className="font-normal text-muted">{tr("(optional)", "(opcional)")}</span>
           </label>
           <input
             id={`${uid}-loc`}
@@ -126,7 +128,7 @@ export function WaitlistForm({
       </div>
 
       <fieldset>
-        <legend className="mb-1.5 text-sm font-medium">I&apos;m a</legend>
+        <legend className="mb-1.5 text-sm font-medium">{tr("I'm a", "Soy")}</legend>
         <div className="inline-flex rounded-lg border border-line bg-bg-alt p-1">
           {(["Organizer", "Player"] as const).map((r) => (
             <label
@@ -143,7 +145,7 @@ export function WaitlistForm({
                 onChange={() => setRole(r)}
                 className="sr-only"
               />
-              {r}
+              {r === "Organizer" ? tr("Organizer", "Organizador") : tr("Player", "Jugador")}
             </label>
           ))}
         </div>
@@ -160,9 +162,9 @@ export function WaitlistForm({
             aria-describedby={errors.consent ? `${uid}-consent-err` : undefined}
           />
           <span id={`${uid}-note`}>
-            I agree to get emails from Fullsquad. See the{" "}
+            {tr("I agree to get emails from Fullsquad. See the", "Acepto recibir correos de Fullsquad. Lee la")}{" "}
             <a href="/privacy/" className="font-medium text-accent underline underline-offset-2">
-              Privacy Policy
+              {tr("Privacy Policy", "Política de privacidad")}
             </a>
             .
           </span>
@@ -178,16 +180,16 @@ export function WaitlistForm({
         {status === "loading" ? (
           <>
             <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true" />
-            Saving your spot…
+            {tr("Saving your spot…", "Guardando tu lugar…")}
           </>
         ) : (
-          submitLabel
+          (submitLabel ?? tr("Notify Me", "Avísame"))
         )}
       </button>
       <div aria-live="polite">
         {status === "error" ? (
           <p className="text-sm text-error">
-            That didn&apos;t go through. Check your connection and try again.
+            {tr("That didn't go through. Check your connection and try again.", "No se pudo enviar. Revisa tu conexión e inténtalo de nuevo.")}
           </p>
         ) : null}
       </div>

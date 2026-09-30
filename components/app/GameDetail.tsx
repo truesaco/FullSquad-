@@ -5,7 +5,7 @@ import { Icon, type IconName } from "@/components/icons";
 import { RosterMeter } from "@/components/ui";
 import { ME, isFull, name, type Game, type LogKind } from "@/lib/demo/model";
 import { POSITIONS, claimSlot, describeNeeds, type NeedKey } from "@/lib/positions";
-import { NeedChips, PlayerLine, PosBalance, Status, relTime, secondsLeft } from "./bits";
+import { NeedChips, PlayerLine, PosBalance, Status, relTime, secondsLeft, useFmt } from "./bits";
 import { Empty } from "./screens";
 import { useApp } from "./store";
 
@@ -21,20 +21,31 @@ const LOG_ICON: Record<LogKind, IconName> = {
   info: "flag",
 };
 
-function inviteText(g: Game) {
+function inviteText(g: Game, f: ReturnType<typeof useFmt>) {
   const need = g.size - g.roster.length;
+  const es = f.lang === "es";
   return [
-    `⚽ ${g.title} — ${g.day} ${g.time} @ ${g.place}`,
-    `${g.format} · ${g.roster.length}/${g.size} in · ${need > 0 ? `Need ${need}: ${describeNeeds(g.needs)}` : "Full, waitlist open"}`,
-    `Tap to claim your spot: https://fullsquad.app/g/${g.id}`,
+    `⚽ ${f.title(g)} — ${f.day(g.day)} ${g.time} @ ${g.place}`,
+    es
+      ? `${g.format} · ${g.roster.length}/${g.size} confirmados · ${need > 0 ? `Faltan ${need}: ${describeNeeds(g.needs, { lang: "es" })}` : "Lleno, lista de espera abierta"}`
+      : `${g.format} · ${g.roster.length}/${g.size} in · ${need > 0 ? `Need ${need}: ${describeNeeds(g.needs)}` : "Full, waitlist open"}`,
+    `${f.tr("Tap to claim your spot", "Toca para apartar tu lugar")}: https://fullsquad.app/g/${g.id}`,
   ].join("\n");
 }
 
 export function GameDetail({ id }: { id: string }) {
   const { s, dispatch, now, go } = useApp();
   const [copied, setCopied] = useState(false);
+  const f = useFmt();
+  const { tr, lang } = f;
   const g = s.games.find((x) => x.id === id);
-  if (!g) return <Empty text="That game doesn't exist anymore." cta={{ href: "#/games", label: "Back to My Games" }} />;
+  if (!g)
+    return (
+      <Empty
+        text={tr("That game doesn't exist anymore.", "Ese partido ya no existe.")}
+        cta={{ href: "#/games", label: tr("Back to My Games", "Volver a Mis partidos") }}
+      />
+    );
 
   const me = s.players[ME];
   const organizer = g.organizerId === ME;
@@ -49,25 +60,25 @@ export function GameDetail({ id }: { id: string }) {
   return (
     <>
       <a href={organizer ? "#/games" : "#/feed"} className="mb-4 inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-accent">
-        <Icon name="arrowRight" className="size-4 rotate-180" /> {organizer ? "My Games" : "Games near you"}
+        <Icon name="arrowRight" className="size-4 rotate-180" /> {organizer ? tr("My Games", "Mis partidos") : tr("Games near you", "Partidos cerca de ti")}
       </a>
 
       <section className="card p-5 md:p-6" aria-labelledby="game-title">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h1 id="game-title" className="font-serif text-3xl leading-tight">
-              {g.title}
+              {f.title(g)}
             </h1>
             <p className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted">
               <span className="inline-flex items-center gap-1">
-                <Icon name="calendar" className="size-4" /> {g.day} {g.time}
+                <Icon name="calendar" className="size-4" /> {f.day(g.day)} {g.time}
               </span>
               <span className="inline-flex items-center gap-1">
                 <Icon name="pin" className="size-4" /> {g.place}
               </span>
             </p>
             <p className="mt-1 text-sm text-muted">
-              {g.format} · {g.level} · organized by {organizer ? "you" : name(s, g.organizerId)}
+              {g.format} · {f.level(g.level)} · {tr("organized by", "organiza")} {organizer ? tr("you", "tú") : name(s, g.organizerId)}
             </p>
           </div>
           <Status g={g} s={s} />
@@ -77,10 +88,12 @@ export function GameDetail({ id }: { id: string }) {
           <p className="font-bold tabular">
             <span className="text-5xl">{g.roster.length}</span>
             <span className="text-xl text-muted">/{g.size}</span>
-            <span className="sr-only"> players confirmed</span>
+            <span className="sr-only"> {tr("players confirmed", "jugadores confirmados")}</span>
           </p>
           <p className="text-right text-sm text-muted">
-            {isFull(g) ? "Full. Extra sign-ups wait in line." : `Still looking for ${describeNeeds(g.needs)}`}
+            {isFull(g)
+              ? tr("Full. Extra sign-ups wait in line.", "Lleno. Los que se apunten esperan en la fila.")
+              : `${tr("Still looking for", "Todavía buscamos")} ${describeNeeds(g.needs, { lang })}`}
           </p>
         </div>
         <RosterMeter filled={g.roster.length} total={g.size} className="mt-3" />
@@ -92,14 +105,15 @@ export function GameDetail({ id }: { id: string }) {
           <div className="mt-4 rounded-xl border border-info/40 bg-[#dbeafe] p-3 text-sm text-[#1e3a8a] dark:bg-[#1e3a8a]/40 dark:text-[#dbeafe]" role="status">
             <p className="font-semibold">
               <Icon name="bell" className="mr-1 inline size-4" />
-              Spot offered to {g.offer.pid === ME ? "you" : name(s, g.offer.pid)} · {secondsLeft(g.offer.startedAt, now)}s to answer
+              {tr("Spot offered to", "Cupo ofrecido a")} {g.offer.pid === ME ? tr("you", "ti") : name(s, g.offer.pid)} · {secondsLeft(g.offer.startedAt, now)}
+              {tr("s to answer", " s para responder")}
             </p>
             <p className="mt-0.5 opacity-80">
               {g.offer.pid === ME
-                ? "Tap In or Pass in the prompt. If you don't answer in time, it rolls to the next player."
+                ? tr("Tap In or Pass in the prompt. If you don't answer in time, it rolls to the next player.", "Toca Me apunto o Paso en el aviso. Si no respondes a tiempo, pasa al siguiente jugador.")
                 : organizer
-                  ? "If they don't answer, it rolls to the next player automatically. You don't have to do anything."
-                  : "If they don't answer, it rolls to the next player in line automatically."}
+                  ? tr("If they don't answer, it rolls to the next player automatically. You don't have to do anything.", "Si no responde, pasa automáticamente al siguiente jugador. No tienes que hacer nada.")
+                  : tr("If they don't answer, it rolls to the next player in line automatically.", "Si no responde, pasa automáticamente al siguiente de la fila.")}
             </p>
           </div>
         ) : null}
@@ -115,7 +129,7 @@ export function GameDetail({ id }: { id: string }) {
                 onClick={() => dispatch({ type: "startFill", id: g.id, t: t() })}
               >
                 <Icon name="send" className="size-4" />
-                {g.fillQueue.length ? "Filling…" : isFull(g) ? "Game on" : "Send to crew"}
+                {g.fillQueue.length ? tr("Filling…", "Llenando…") : isFull(g) ? tr("Game on", "¡A jugar!") : tr("Send to crew", "Enviar a mi grupo")}
               </button>
               <button
                 type="button"
@@ -123,20 +137,20 @@ export function GameDetail({ id }: { id: string }) {
                 disabled={!!g.offer || g.roster.length <= 1 || g.fillQueue.length > 0}
                 onClick={() => dispatch({ type: "drop", id: g.id, t: t() })}
               >
-                <Icon name="userMinus" className="size-4" /> Simulate a dropout
+                <Icon name="userMinus" className="size-4" /> {tr("Simulate a dropout", "Simular una baja")}
               </button>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
                 onClick={async () => {
                   try {
-                    await navigator.clipboard.writeText(inviteText(g));
+                    await navigator.clipboard.writeText(inviteText(g, f));
                   } catch {}
                   setCopied(true);
                   window.setTimeout(() => setCopied(false), 2000);
                 }}
               >
-                <Icon name={copied ? "check" : "copy"} className="size-4" /> {copied ? "Copied" : "Copy for group chat"}
+                <Icon name={copied ? "check" : "copy"} className="size-4" /> {copied ? tr("Copied", "Copiado") : tr("Copy for group chat", "Copiar para el chat")}
               </button>
               <button
                 type="button"
@@ -146,22 +160,22 @@ export function GameDetail({ id }: { id: string }) {
                   go("/games");
                 }}
               >
-                Delete
+                {tr("Delete", "Eliminar")}
               </button>
             </>
           ) : (
             <>
               {onRoster ? (
                 <button type="button" className="btn btn-secondary btn-sm" onClick={() => dispatch({ type: "leave", id: g.id, t: t() })}>
-                  Can&apos;t make it
+                  {tr("Can't make it", "No puedo ir")}
                 </button>
               ) : onWaitlist ? (
                 <button type="button" className="btn btn-secondary btn-sm" onClick={() => dispatch({ type: "leave", id: g.id, t: t() })}>
-                  Leave waitlist
+                  {tr("Leave waitlist", "Salir de la lista")}
                 </button>
               ) : (
                 <button type="button" className="btn btn-primary btn-sm" onClick={() => dispatch({ type: "join", id: g.id, t: t() })}>
-                  {canClaim ? "I'm In" : "Join the waitlist"}
+                  {canClaim ? tr("I'm In", "Me apunto") : tr("Join the waitlist", "Entrar a la lista de espera")}
                 </button>
               )}
               <button
@@ -169,17 +183,19 @@ export function GameDetail({ id }: { id: string }) {
                 className="btn btn-secondary btn-sm"
                 disabled={!!g.offer || g.roster.filter((r) => r.pid !== ME && r.pid !== g.organizerId).length === 0}
                 onClick={() => dispatch({ type: "drop", id: g.id, t: t() })}
-                title="Demo: make someone on the roster drop out"
+                title={tr("Demo: make someone on the roster drop out", "Demo: hacer que alguien de la lista se baje")}
               >
-                <Icon name="userMinus" className="size-4" /> Demo: someone drops
+                <Icon name="userMinus" className="size-4" /> {tr("Demo: someone drops", "Demo: alguien se baja")}
               </button>
             </>
           )}
         </div>
         {!organizer && !onRoster && !onWaitlist && !canClaim && !isFull(g) ? (
           <p className="mt-2 text-sm text-muted">
-            The open spots need {describeNeeds(g.needs)}. You play {me.positions.join(", ")}, so you&apos;d join the waitlist. Add positions in your
-            profile to match more games.
+            {tr(
+              `The open spots need ${describeNeeds(g.needs)}. You play ${me.positions.join(", ")}, so you'd join the waitlist. Add positions in your profile to match more games.`,
+              `Los cupos libres necesitan ${describeNeeds(g.needs, { lang: "es" })}. Tú juegas ${me.positions.join(", ")}, así que entrarías a la lista de espera. Agrega posiciones en tu perfil para encajar en más partidos.`,
+            )}
           </p>
         ) : null}
       </section>
@@ -188,14 +204,14 @@ export function GameDetail({ id }: { id: string }) {
         <div className="grid content-start gap-5">
           <section className="card p-5" aria-labelledby="bal-title">
             <h2 id="bal-title" className="mb-3 font-bold">
-              Position balance
+              {tr("Position balance", "Balance de posiciones")}
             </h2>
             <PosBalance g={g} />
           </section>
 
           <section className="card p-5" aria-labelledby="roster-title">
             <h2 id="roster-title" className="mb-3 font-bold">
-              Roster <span className="font-normal text-muted">· {g.roster.length} in</span>
+              {tr("Roster", "Lista")} <span className="font-normal text-muted">· {g.roster.length} {tr("in", "dentro")}</span>
             </h2>
             <ul className="grid gap-2 sm:grid-cols-2">
               {g.roster.map((r) => (
@@ -208,7 +224,7 @@ export function GameDetail({ id }: { id: string }) {
                   <span className="flex size-8 items-center justify-center rounded-full border border-dashed border-line">
                     <Icon name="plus" className="size-4" />
                   </span>
-                  Open · {k === "ANY" ? "any position" : k}
+                  {tr("Open", "Libre")} · {k === "ANY" ? tr("any position", "cualquier posición") : k}
                 </li>
               ))}
             </ul>
@@ -218,9 +234,14 @@ export function GameDetail({ id }: { id: string }) {
         <div className="grid content-start gap-5">
           <section className="card p-5" aria-labelledby="wl-title">
             <h2 id="wl-title" className="mb-1 font-bold">
-              Waitlist
+              {tr("Waitlist", "Lista de espera")}
             </h2>
-            <p className="mb-3 text-sm text-muted">Sign-up order, visible to everyone. When a spot opens, the first person in line who plays that position gets a one-tap offer.</p>
+            <p className="mb-3 text-sm text-muted">
+              {tr(
+                "Sign-up order, visible to everyone. When a spot opens, the first person in line who plays that position gets a one-tap offer.",
+                "Por orden de inscripción y visible para todos. Cuando se abre un cupo, el primero de la fila que juega esa posición recibe una oferta de un toque.",
+              )}
+            </p>
             {g.waitlist.length ? (
               <ol className="grid gap-2">
                 {g.waitlist.map((pid, i) => (
@@ -230,7 +251,7 @@ export function GameDetail({ id }: { id: string }) {
                       pos={s.players[pid].positions[0]}
                       right={
                         g.offer?.pid === pid ? (
-                          <span className="text-xs font-bold text-info">Offered</span>
+                          <span className="text-xs font-bold text-info">{tr("Offered", "Ofrecido")}</span>
                         ) : (
                           <span className="text-sm font-bold text-muted tabular">#{i + 1}</span>
                         )
@@ -240,13 +261,13 @@ export function GameDetail({ id }: { id: string }) {
                 ))}
               </ol>
             ) : (
-              <p className="rounded-lg bg-bg-alt p-3 text-sm text-muted">Nobody waiting yet.</p>
+              <p className="rounded-lg bg-bg-alt p-3 text-sm text-muted">{tr("Nobody waiting yet.", "Nadie esperando todavía.")}</p>
             )}
           </section>
 
           <section className="card p-5" aria-labelledby="log-title">
             <h2 id="log-title" className="mb-3 font-bold">
-              What Fullsquad did
+              {tr("What Fullsquad did", "Lo que hizo Fullsquad")}
             </h2>
             {g.log.length ? (
               <ol className="grid gap-3">
@@ -256,14 +277,14 @@ export function GameDetail({ id }: { id: string }) {
                       <Icon name={LOG_ICON[e.kind]} className="size-3.5" strokeWidth={2.5} />
                     </span>
                     <span className="min-w-0 flex-1">
-                      {e.text}
-                      <span className="block text-xs text-muted">{relTime(e.t, now)}</span>
+                      {f.t(e.text)}
+                      <span className="block text-xs text-muted">{relTime(e.t, now, lang)}</span>
                     </span>
                   </li>
                 ))}
               </ol>
             ) : (
-              <p className="text-sm text-muted">Nothing yet.</p>
+              <p className="text-sm text-muted">{tr("Nothing yet.", "Nada todavía.")}</p>
             )}
           </section>
         </div>

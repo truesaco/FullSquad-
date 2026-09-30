@@ -22,7 +22,15 @@ export function PageEffects() {
 
     const marks = [25, 50, 75, 100];
     const seen = new Set<number>();
+    // Backup for fast scrolls and re-rendered nodes: reveal anything that has reached the viewport.
+    const sweep = () => {
+      for (const el of document.querySelectorAll<HTMLElement>(".reveal:not(.is-visible)")) {
+        if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add("is-visible");
+      }
+    };
+
     const onScroll = () => {
+      sweep();
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const pct = max > 0 ? (window.scrollY / max) * 100 : 100;
       for (const m of marks) {

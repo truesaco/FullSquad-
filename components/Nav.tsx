@@ -3,17 +3,19 @@
 import { useEffect, useState } from "react";
 import { Icon, Logo } from "./icons";
 import { PostGameButton } from "./PostGame";
+import { LangToggle, useLang, type L } from "@/lib/i18n";
 
-const LINKS = [
-  { href: "#how-it-works", label: "How it Works" },
-  { href: "#features", label: "Features" },
-  { href: "#time-back", label: "Time Back" },
-  { href: "#pricing", label: "Pricing" },
-  { href: "#leagues", label: "Leagues" },
-  { href: "/app/", label: "Try the App" },
+const LINKS: { href: string; label: L }[] = [
+  { href: "#how-it-works", label: { en: "How it Works", es: "Cómo funciona" } },
+  { href: "#features", label: { en: "Features", es: "Funciones" } },
+  { href: "#time-back", label: { en: "Time Back", es: "Tu tiempo" } },
+  { href: "#pricing", label: { en: "Pricing", es: "Precios" } },
+  { href: "#leagues", label: { en: "Leagues", es: "Ligas" } },
+  { href: "/app/", label: { en: "Try the App", es: "Prueba la app" } },
 ];
 
 export function ThemeToggle({ className = "" }: { className?: string }) {
+  const { tr } = useLang();
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
   useEffect(() => {
     setTheme((document.documentElement.dataset.theme as "light" | "dark") || "light");
@@ -23,7 +25,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
     <button
       type="button"
       className={`flex size-11 items-center justify-center rounded-full text-fg hover:bg-bg-alt ${className}`}
-      aria-label={`Switch to ${next} mode`}
+      aria-label={next === "dark" ? tr("Switch to dark mode", "Cambiar a modo oscuro") : tr("Switch to light mode", "Cambiar a modo claro")}
       onClick={() => {
         document.documentElement.dataset.theme = next;
         try {
@@ -38,6 +40,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
 }
 
 export function Nav() {
+  const { t, tr } = useLang();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -70,7 +73,7 @@ export function Nav() {
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-10 focus:rounded-md focus:bg-surface focus:px-4 focus:py-2"
         >
-          Skip to content
+          {tr("Skip to content", "Saltar al contenido")}
         </a>
         <nav className="mx-auto flex h-[60px] max-w-[1440px] items-center justify-between gap-4 px-4 md:px-8 lg:h-[72px]" aria-label="Main">
           <a href="#top" className="flex items-center" aria-label="Fullsquad home">
@@ -81,26 +84,27 @@ export function Nav() {
             {LINKS.map((l) => (
               <li key={l.href}>
                 <a href={l.href} className="rounded-md px-3 py-2 text-[15px] font-medium text-fg/80 hover:bg-bg-alt hover:text-fg">
-                  {l.label}
+                  {t(l.label)}
                 </a>
               </li>
             ))}
           </ul>
 
           <div className="flex items-center gap-1 sm:gap-2">
+            <LangToggle />
             <ThemeToggle />
-            <a href="#waitlist" className="hidden whitespace-nowrap px-3 py-2 text-[15px] font-medium hover:text-accent sm:inline" data-cta="sign_in" data-loc="nav">
-              Sign In
+            <a href="#waitlist" className="hidden whitespace-nowrap px-3 py-2 text-[15px] font-medium hover:text-accent 2xl:inline" data-cta="sign_in" data-loc="nav">
+              {tr("Sign In", "Entrar")}
             </a>
             <PostGameButton loc="nav" className="btn btn-primary btn-sm hidden sm:inline-flex">
-              Post a Game
+              {tr("Post a Game", "Publica un partido")}
             </PostGameButton>
             <button
               type="button"
               className="flex size-11 items-center justify-center rounded-full hover:bg-bg-alt xl:hidden"
               aria-expanded={open}
               aria-controls="mobile-drawer"
-              aria-label={open ? "Close menu" : "Open menu"}
+              aria-label={open ? tr("Close menu", "Cerrar menú") : tr("Open menu", "Abrir menú")}
               onClick={() => setOpen((o) => !o)}
             >
               <Icon name={open ? "x" : "menu"} className="size-6" />
@@ -132,17 +136,17 @@ export function Nav() {
                   onClick={() => setOpen(false)}
                   className="flex min-h-12 items-center rounded-lg px-3 text-lg font-semibold hover:bg-bg-alt"
                 >
-                  {l.label}
+                  {t(l.label)}
                 </a>
               </li>
             ))}
           </ul>
           <div className="mt-auto grid gap-3 border-t border-line pt-6" onClick={() => setOpen(false)}>
             <PostGameButton loc="drawer" className="btn btn-primary w-full">
-              Post a Game
+              {tr("Post a Game", "Publica un partido")}
             </PostGameButton>
             <a href="#waitlist" tabIndex={open ? 0 : -1} className="btn btn-secondary w-full" data-cta="sign_in" data-loc="drawer">
-              Sign In
+              {tr("Sign In", "Entrar")}
             </a>
           </div>
         </div>

@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { Icon } from "./icons";
 import { PostGameButton } from "./PostGame";
+import { useLang } from "@/lib/i18n";
 
 /** Sticky "Post a Game" button on phones, shown after the hero and hidden over the footer. */
 export function MobileFab() {
+  const { tr } = useLang();
   const [show, setShow] = useState(false);
   useEffect(() => {
     const hero = document.getElementById("top");
@@ -34,7 +36,7 @@ export function MobileFab() {
       inert={!show}
     >
       <PostGameButton loc="fab" className="btn btn-primary w-full shadow-xl">
-        <Icon name="plus" /> Post a Game
+        <Icon name="plus" /> {tr("Post a Game", "Publica un partido")}
       </PostGameButton>
     </div>
   );
