@@ -6,6 +6,8 @@ import { Avatar } from "@/components/ui";
 import { ThemeToggle } from "@/components/Nav";
 import { LangToggle } from "@/lib/i18n";
 import { PositionNeeds } from "@/components/PositionNeeds";
+import { GameStylePicker } from "@/components/GameStylePicker";
+import { defaultStyle, switchTime } from "@/lib/rotation";
 import { FORMAT_SIZE, ME, involved, type Skill } from "@/lib/demo/model";
 import { POSITIONS, claimSlot, emptyNeeds, type Pos } from "@/lib/positions";
 import { GameCard, PlayerLine, PosToggles, useFmt } from "./bits";
@@ -136,6 +138,7 @@ export function PostScreen() {
   const [format, setFormat] = useState("7v7");
   const [level, setLevel] = useState("All levels");
   const [needs, setNeeds] = useState(emptyNeeds());
+  const [styleChoice, setStyleChoice] = useState(defaultStyle);
   const [send, setSend] = useState(true);
   const open = (FORMAT_SIZE[format] ?? 14) - 1;
 
@@ -143,7 +146,9 @@ export function PostScreen() {
     e.preventDefault();
     const id = `g${Date.now().toString(36)}`;
     const t = Date.now();
-    dispatch({ type: "create", id, t, game: { title, day, time: to12h(time), place, format, level, needs } });
+    const { style, rotation, durationMin } = styleChoice;
+    const switchAt = style === "hybrid" ? switchTime(day, time, styleChoice) : undefined;
+    dispatch({ type: "create", id, t, game: { title, day, time: to12h(time), place, format, level, needs, style, rotation, switchAt, durationMin } });
     if (send) dispatch({ type: "startFill", id, t });
     go(`/game/${id}`);
   };
@@ -188,7 +193,14 @@ export function PostScreen() {
             ))}
           </div>
         </fieldset>
-        <PositionNeeds total={open} value={needs} onChange={setNeeds} idPrefix={`${uid}-n`} />
+        <GameStylePicker
+          value={styleChoice}
+          onChange={setStyleChoice}
+          day={day}
+          time={time}
+          idPrefix={`${uid}-st`}
+          positions={<PositionNeeds total={open} value={needs} onChange={setNeeds} idPrefix={`${uid}-n`} />}
+        />
         <Field id={`${uid}-l`} label={tr("Skill level", "Nivel")}>
           <select id={`${uid}-l`} className="input" value={level} onChange={(e) => setLevel(e.target.value)}>
             {["All levels", "Casual", "Intermediate", "Competitive"].map((l) => (
@@ -334,6 +346,19 @@ export function Profile() {
             {tr("Pick every spot you're happy playing. The first one is your main position.", "Elige todas las posiciones que te gusta jugar. La primera es tu posición principal.")}
           </p>
           <PosToggles value={me.positions} onChange={setPositions} label={tr("Positions I play", "Posiciones que juego")} />
+          <label className="mt-3 flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-lg bg-bg-alt px-3 text-sm">
+            <span>
+              <span className="font-semibold">{tr("Happy to take a turn in goal", "Puedo tapar un rato")}</span>
+              <span className="block text-muted">
+                {tr("In rotating-keeper games you'll go in goal first.", "En partidos con portero rotativo te toca primero.")}
+              </span>
+            </span>
+            <Switch
+              checked={me.goalOk}
+              onChange={(v) => dispatch({ type: "profile", positions: me.positions, skill: me.skill, goalOk: v })}
+              label={tr("Happy to take a turn in goal", "Puedo tapar un rato")}
+            />
+          </label>
         </div>
         <div>
           <p className="mb-2 text-sm font-semibold">{tr("Skill", "Nivel")}</p>

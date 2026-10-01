@@ -20,10 +20,10 @@ The site also includes a working demo of the Fullsquad app, which runs entirely 
 |---|---|
 | **Feed** | Toggle the positions you play (GK, DEF, MID, FWD). Games that need you rise to the top. Tap In, or join the waitlist. |
 | **My Games** | See the games you organize and the ones you're playing in. |
-| **Post** | Choose the format, then toggle the positions you need (with a count for each) or leave it on **Any position**. Optionally send it to your crew right away. |
-| **Game** | Live roster and position balance, the waitlist, and a log of everything Fullsquad did. Simulate a dropout to watch the backfill offer roll down the waitlist (15 seconds stands in for 15 minutes). |
+| **Post** | Choose the format and a **game style**: **Set positions** (toggle what you need, or **Any position**), **Rotating** (rotating keeper or free rotation), or **Positions, then rotate** (hold positions until a deadline you pick: the night before, game-day morning, or a custom date and time). Optionally send it to your crew right away. |
+| **Game** | Live roster, position balance or a fair **keeper rotation schedule** (volunteers first), the waitlist, and a log of everything Fullsquad did. Simulate a dropout to watch the backfill offer roll down the waitlist (15 seconds stands in for 15 minutes). |
 | **Crew** | Your regulars with their positions and attendance, a position filter, and nearby players you can add. |
-| **Profile** | Your positions and skill, notification settings, theme, and a reset for the demo data. |
+| **Profile** | Your positions, skill, "happy to take a turn in goal", notification settings, theme, and a reset for the demo data. |
 
 The "Post a game" builder on the landing page hands its game to the demo ("See this game run in the app demo"). Demo data is saved in `localStorage`, and the demo logic lives in `lib/demo/model.ts`.
 

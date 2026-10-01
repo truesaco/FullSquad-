@@ -30,6 +30,13 @@ export const FAQS: { q: L; a: L }[] = [
     },
   },
   {
+    q: { en: "We rotate positions, even in goal. Does Fullsquad work for us?", es: "Rotamos posiciones, hasta en el arco. ¿Fullsquad sirve para nosotros?" },
+    a: {
+      en: "Yes. Pick \"Rotating\" when you post: rotating keeper (Fullsquad builds a fair keeper schedule, volunteers first) or free rotation. Or choose \"Positions, then rotate\": hold a keeper spot until a deadline you pick, like the night before. If nobody claims it by then, the game switches to rotating keepers on its own.",
+      es: "Sí. Elige \"Rotativo\" al publicar: portero rotativo (Fullsquad arma un turno justo de porteros, los voluntarios primero) o rotación libre. O elige \"Posiciones, luego rotación\": reserva el arco hasta la hora límite que elijas, como la noche anterior. Si nadie lo toma, el partido pasa solo a portero rotativo.",
+    },
+  },
+  {
     q: { en: "What if my crew won't download another app?", es: "¿Y si mi grupo no quiere descargar otra app?" },
     a: {
       en: "They don't have to. Every game gets a link you drop into the chat you already use. Your crew taps it, says In or Pass, and they're on the roster or the waitlist.",

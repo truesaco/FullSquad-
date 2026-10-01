@@ -33,7 +33,7 @@ const ROWS: { label: L; cells: Cell[] }[] = [
   },
   {
     label: { en: "Fills by position and skill", es: "Llena por posición y nivel" },
-    cells: [n(), p("Skill labels at most", "Solo etiquetas de nivel"), n(), y("Pick any position, or anyone", "Elige posiciones o cualquiera")],
+    cells: [n(), p("Skill labels at most", "Solo etiquetas de nivel"), n(), y("Set positions, rotation, or both", "Posiciones, rotación o ambas")],
   },
   {
     label: { en: "Automatic, visible waitlist", es: "Lista de espera automática y visible" },

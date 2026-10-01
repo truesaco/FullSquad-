@@ -5,7 +5,8 @@ import { Icon, type IconName } from "@/components/icons";
 import { RosterMeter } from "@/components/ui";
 import { ME, isFull, name, type Game, type LogKind } from "@/lib/demo/model";
 import { POSITIONS, claimSlot, describeNeeds, type NeedKey } from "@/lib/positions";
-import { NeedChips, PlayerLine, PosBalance, Status, relTime, secondsLeft, useFmt } from "./bits";
+import { NeedChips, PlayerLine, PosBalance, Status, StyleTag, relTime, secondsLeft, useFmt } from "./bits";
+import { formatWhen, keeperPlan, styleLine } from "@/lib/rotation";
 import { Empty } from "./screens";
 import { useApp } from "./store";
 
@@ -29,8 +30,11 @@ function inviteText(g: Game, f: ReturnType<typeof useFmt>) {
     es
       ? `${g.format} · ${g.roster.length}/${g.size} confirmados · ${need > 0 ? `Faltan ${need}: ${describeNeeds(g.needs, { lang: "es" })}` : "Lleno, lista de espera abierta"}`
       : `${g.format} · ${g.roster.length}/${g.size} in · ${need > 0 ? `Need ${need}: ${describeNeeds(g.needs)}` : "Full, waitlist open"}`,
+    styleLine(g.style, g.rotation, g.switchAt ? formatWhen(g.switchAt, f.lang) : null, f.lang),
     `${f.tr("Tap to claim your spot", "Toca para apartar tu lugar")}: https://fullsquad.app/g/${g.id}`,
-  ].join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 export function GameDetail({ id }: { id: string }) {
@@ -97,9 +101,36 @@ export function GameDetail({ id }: { id: string }) {
           </p>
         </div>
         <RosterMeter filled={g.roster.length} total={g.size} className="mt-3" />
-        <div className="mt-3">
+        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          <StyleTag g={g} />
           <NeedChips g={g} mine={me.positions} />
         </div>
+
+        {g.style === "hybrid" && g.switchAt ? (
+          <div className="mt-4 rounded-xl border border-[#f3b0a9] bg-[#fdf1ef] p-3 text-sm text-[#5c1c16] dark:border-[#6b2a24] dark:bg-[#2a1513] dark:text-[#f8d4cf]">
+            <p className="flex items-center gap-1.5 font-semibold">
+              <Icon name="clock" className="size-4" />
+              {tr("Positions held until", "Posiciones reservadas hasta el")} {formatWhen(g.switchAt, lang)}
+            </p>
+            <p className="mt-0.5 opacity-90">
+              {g.rotation === "keeper"
+                ? tr(
+                    "If nobody claims goalkeeper by then, everyone takes a turn in goal and the open spots open to anyone.",
+                    "Si nadie toma el arco antes de esa hora, todos tapan un rato y los cupos libres se abren para cualquiera.",
+                  )
+                : tr("Then it switches to free rotation and the open spots open to anyone.", "Después pasa a rotación libre y los cupos libres se abren para cualquiera.")}
+            </p>
+            {organizer ? (
+              <button
+                type="button"
+                className="btn btn-sm btn-secondary mt-3 !min-h-9"
+                onClick={() => dispatch({ type: "switch", id: g.id, t: Date.now() })}
+              >
+                <Icon name="clock" className="size-4" /> {tr("Demo: reach the deadline now", "Demo: llegar a la hora límite ya")}
+              </button>
+            ) : null}
+          </div>
+        ) : null}
 
         {g.offer ? (
           <div className="mt-4 rounded-xl border border-info/40 bg-[#dbeafe] p-3 text-sm text-[#1e3a8a] dark:bg-[#1e3a8a]/40 dark:text-[#dbeafe]" role="status">
@@ -202,12 +233,16 @@ export function GameDetail({ id }: { id: string }) {
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[1.3fr_1fr]">
         <div className="grid content-start gap-5">
-          <section className="card p-5" aria-labelledby="bal-title">
-            <h2 id="bal-title" className="mb-3 font-bold">
-              {tr("Position balance", "Balance de posiciones")}
-            </h2>
-            <PosBalance g={g} />
-          </section>
+          {g.style === "rotating" ? (
+            <RotationCard g={g} />
+          ) : (
+            <section className="card p-5" aria-labelledby="bal-title">
+              <h2 id="bal-title" className="mb-3 font-bold">
+                {tr("Position balance", "Balance de posiciones")}
+              </h2>
+              <PosBalance g={g} />
+            </section>
+          )}
 
           <section className="card p-5" aria-labelledby="roster-title">
             <h2 id="roster-title" className="mb-3 font-bold">
@@ -290,5 +325,75 @@ export function GameDetail({ id }: { id: string }) {
         </div>
       </div>
     </>
+  );
+}
+
+/** Rotating games: the keeper schedule, or how free rotation works. */
+function RotationCard({ g }: { g: Game }) {
+  const { s } = useApp();
+  const { tr } = useFmt();
+  if (g.rotation === "free") {
+    return (
+      <section className="card p-5" aria-labelledby="rot-title">
+        <h2 id="rot-title" className="mb-2 flex items-center gap-2 font-bold">
+          <Icon name="refresh" className="size-5 text-accent" /> {tr("Free rotation", "Rotación libre")}
+        </h2>
+        <p className="text-sm text-muted">
+          {tr(
+            "No set positions. Play anywhere and swap whenever; teams are split on the day. Positions on profiles just help split teams evenly.",
+            "Sin posiciones fijas. Juega donde quieras y cambien cuando quieran; los equipos se arman ese día. Las posiciones del perfil solo ayudan a armar equipos parejos.",
+          )}
+        </p>
+      </section>
+    );
+  }
+  const roster = g.roster.map((r) => ({ pid: r.pid, goalOk: r.pos === "GK" || !!s.players[r.pid]?.goalOk }));
+  const plan = keeperPlan(roster, g.durationMin);
+  const volunteers = roster.filter((r) => r.goalOk).length;
+  return (
+    <section className="card p-5" aria-labelledby="rot-title">
+      <h2 id="rot-title" className="mb-1 flex items-center gap-2 font-bold">
+        <Icon name="refresh" className="size-5 text-accent" /> {tr("Keeper rotation", "Turno de porteros")}
+      </h2>
+      <p className="mb-4 text-sm text-muted">
+        {tr(
+          `Everyone takes a turn in goal across ${g.durationMin} minutes. ${
+            volunteers === 0 ? "No volunteers yet, so it follows sign-up order." : volunteers === 1 ? "The volunteer goes first." : `The ${volunteers} volunteers go first.`
+          } Suggested split; adjust when you pick teams.`,
+          `Todos tapan un rato durante ${g.durationMin} minutos. ${
+            volunteers === 0 ? "Aún no hay voluntarios, así que va por orden de inscripción." : volunteers === 1 ? "El voluntario va primero." : `Los ${volunteers} voluntarios van primero.`
+          } Es una sugerencia; ajústala al armar equipos.`,
+        )}
+      </p>
+      {g.roster.length < 2 ? (
+        <p className="rounded-lg bg-bg-alt p-3 text-sm text-muted">{tr("The schedule appears once players join.", "El turno aparece cuando se apunten jugadores.")}</p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {plan.map((team, ti) => (
+            <div key={ti}>
+              <p className="caption mb-2 text-muted">
+                {tr("Team", "Equipo")} {ti === 0 ? "A" : "B"}
+              </p>
+              <ol className="grid gap-1.5">
+                {team.map((turn) => {
+                  const p = s.players[turn.pid];
+                  return (
+                    <li key={turn.pid} className="flex items-center justify-between gap-2 rounded-lg bg-bg-alt px-3 py-1.5 text-sm">
+                      <span className="flex min-w-0 items-center gap-1.5 truncate font-semibold">
+                        {p?.goalOk || p?.positions[0] === "GK" ? <span aria-label={tr("volunteer", "voluntario")}>🧤</span> : null}
+                        {turn.pid === ME ? tr("You", "Tú") : p?.name}
+                      </span>
+                      <span className="shrink-0 text-xs font-bold text-muted tabular">
+                        {turn.from}&prime;–{turn.to}&prime;
+                      </span>
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

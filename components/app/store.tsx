@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useReducer, useRef, 
 import { ME, OFFER_SECONDS, STORAGE_KEY, nextCandidate, reducer, seedState, type Action, type State } from "@/lib/demo/model";
 import { takeDraft } from "@/lib/demo/draft";
 import { emptyNeeds } from "@/lib/positions";
+import { to12h } from "@/lib/rotation";
 
 type Ctx = { s: State; dispatch: (a: Action) => void; now: number; route: string[]; go: (hash: string) => void };
 const AppCtx = createContext<Ctx | null>(null);
@@ -46,7 +47,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
         type: "create",
         id,
         t: Date.now(),
-        game: { title: d.title, day: d.day.slice(0, 3), time: d.time, place: d.place, format: d.format, level: d.level, needs: d.needs ?? emptyNeeds(), have: d.have },
+        game: {
+          title: d.title,
+          day: d.day.slice(0, 3),
+          time: to12h(d.time),
+          place: d.place,
+          format: d.format,
+          level: d.level,
+          needs: d.needs ?? emptyNeeds(),
+          have: d.have,
+          style: d.style,
+          rotation: d.rotation,
+          switchAt: d.switchAt,
+          durationMin: d.durationMin,
+        },
       });
       window.location.hash = `/game/${id}`;
     }
@@ -79,6 +93,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setNow(t);
       const st = stateRef.current;
       for (const g of st.games) {
+        // "Positions, then rotate" games switch on their own once the deadline passes.
+        if (g.style === "hybrid" && g.switchAt && t >= g.switchAt && !handled.current.has(`switch:${g.id}`)) {
+          handled.current.add(`switch:${g.id}`);
+          dispatch({ type: "switch", id: g.id, t });
+        }
         const o = g.offer;
         if (!o) continue;
         const key = `${g.id}:${o.pid}:${o.startedAt}`;
