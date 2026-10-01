@@ -1,6 +1,7 @@
 // Fullsquad app demo: data model, seed data, and a pure reducer.
 // Everything runs in the browser with simulated players; nothing is sent anywhere.
 import type { L } from "@/lib/i18n";
+import { switchTime, type Rotation, type Style } from "@/lib/rotation";
 import { claimSlot, emptyNeeds, fitNeeds, totalNeeds, type NeedKey, type Needs, type Pos } from "@/lib/positions";
 
 export type Skill = "Casual" | "Intermediate" | "Competitive";
@@ -13,6 +14,7 @@ export type Player = {
   showed: number;
   of: number;
   crew: boolean;
+  goalOk: boolean; // happy to take a turn in goal
 };
 export type Spot = { pid: string; pos: Pos };
 export type Offer = { pid: string; pos: Pos; dropped: L; startedAt: number; passed: string[] };
@@ -34,6 +36,10 @@ export type Game = {
   offer: Offer | null;
   fillQueue: string[];
   log: LogEntry[];
+  style: Style;
+  rotation: Rotation;
+  switchAt?: number; // "hybrid" games: when unfilled position spots open up / keeper starts rotating
+  durationMin: number;
 };
 export type Toast = { id: number; text: L; sub?: L };
 export type State = { players: Record<string, Player>; games: Game[]; toasts: Toast[]; seq: number };
@@ -42,7 +48,17 @@ export const ME = "me";
 export const OFFER_SECONDS = 15; // demo speed: 15 seconds stands in for 15 minutes
 export const FORMAT_SIZE: Record<string, number> = { "5v5": 10, "7v7": 14, "8v8": 16, "11v11": 22 };
 
-const P = (id: string, name: string, positions: Pos[], skill: Skill, miles: number, showed: number, of: number, crew: boolean): Player => ({
+const P = (
+  id: string,
+  name: string,
+  positions: Pos[],
+  skill: Skill,
+  miles: number,
+  showed: number,
+  of: number,
+  crew: boolean,
+  goalOk: boolean,
+): Player => ({
   id,
   name,
   positions,
@@ -51,49 +67,53 @@ const P = (id: string, name: string, positions: Pos[], skill: Skill, miles: numb
   showed,
   of,
   crew,
+  goalOk,
 });
 
 const SEED_PLAYERS: Player[] = [
-  P(ME, "Diego", ["MID", "FWD"], "Intermediate", 0, 24, 24, true),
+  P(ME, "Diego", ["MID", "FWD"], "Intermediate", 0, 24, 24, true, false),
   // Crew
-  P("marco", "Marco", ["DEF"], "Intermediate", 1.2, 20, 21, true),
-  P("kevin", "Kevin", ["FWD"], "Competitive", 2.4, 15, 18, true),
-  P("tomas", "Tomás", ["GK"], "Intermediate", 3.0, 11, 12, true),
-  P("andres", "Andrés", ["MID"], "Casual", 1.8, 12, 17, true),
-  P("sebastian", "Sebastián", ["MID", "DEF"], "Intermediate", 2.1, 19, 20, true),
-  P("camilo", "Camilo", ["DEF"], "Casual", 4.2, 9, 11, true),
-  P("rafa", "Rafa", ["MID"], "Competitive", 0.9, 22, 22, true),
-  P("jorge", "Jorge", ["FWD"], "Intermediate", 3.3, 13, 15, true),
-  P("nico", "Nico", ["DEF", "MID"], "Intermediate", 2.7, 16, 16, true),
-  P("ivan", "Iván", ["MID"], "Casual", 5.1, 7, 10, true),
-  P("pablo", "Pablo", ["FWD", "MID"], "Intermediate", 1.5, 18, 19, true),
-  P("mateo", "Mateo", ["DEF"], "Competitive", 2.2, 14, 14, true),
-  P("julian", "Julián", ["MID"], "Intermediate", 3.8, 10, 12, true),
-  P("luis", "Luis", ["MID", "FWD"], "Intermediate", 2.0, 17, 18, true),
-  P("santi", "Santi", ["DEF"], "Casual", 4.5, 8, 9, true),
-  P("beto", "Beto", ["GK", "DEF"], "Casual", 6.0, 6, 8, true),
-  P("felipe", "Felipe", ["FWD"], "Casual", 3.1, 9, 12, true),
-  P("oscar", "Óscar", ["DEF"], "Intermediate", 2.9, 12, 13, true),
+  P("marco", "Marco", ["DEF"], "Intermediate", 1.2, 20, 21, true, false),
+  P("kevin", "Kevin", ["FWD"], "Competitive", 2.4, 15, 18, true, false),
+  P("tomas", "Tomás", ["GK"], "Intermediate", 3.0, 11, 12, true, true),
+  P("andres", "Andrés", ["MID"], "Casual", 1.8, 12, 17, true, true),
+  P("sebastian", "Sebastián", ["MID", "DEF"], "Intermediate", 2.1, 19, 20, true, false),
+  P("camilo", "Camilo", ["DEF"], "Casual", 4.2, 9, 11, true, false),
+  P("rafa", "Rafa", ["MID"], "Competitive", 0.9, 22, 22, true, false),
+  P("jorge", "Jorge", ["FWD"], "Intermediate", 3.3, 13, 15, true, false),
+  P("nico", "Nico", ["DEF", "MID"], "Intermediate", 2.7, 16, 16, true, true),
+  P("ivan", "Iván", ["MID"], "Casual", 5.1, 7, 10, true, true),
+  P("pablo", "Pablo", ["FWD", "MID"], "Intermediate", 1.5, 18, 19, true, false),
+  P("mateo", "Mateo", ["DEF"], "Competitive", 2.2, 14, 14, true, false),
+  P("julian", "Julián", ["MID"], "Intermediate", 3.8, 10, 12, true, true),
+  P("luis", "Luis", ["MID", "FWD"], "Intermediate", 2.0, 17, 18, true, false),
+  P("santi", "Santi", ["DEF"], "Casual", 4.5, 8, 9, true, false),
+  P("beto", "Beto", ["GK", "DEF"], "Casual", 6.0, 6, 8, true, true),
+  P("felipe", "Felipe", ["FWD"], "Casual", 3.1, 9, 12, true, false),
+  P("oscar", "Óscar", ["DEF"], "Intermediate", 2.9, 12, 13, true, false),
   // Nearby players who aren't in the crew yet
-  P("chris", "Chris", ["GK"], "Intermediate", 2.1, 9, 10, false),
-  P("jamal", "Jamal", ["DEF"], "Competitive", 3.4, 21, 22, false),
-  P("wes", "Wes", ["MID"], "Intermediate", 1.7, 8, 9, false),
-  P("daniel", "Daniel", ["FWD"], "Intermediate", 4.0, 12, 14, false),
-  P("ali", "Ali", ["MID", "DEF"], "Casual", 2.6, 5, 6, false),
-  P("marcus", "Marcus", ["DEF"], "Intermediate", 5.5, 10, 13, false),
-  P("emeka", "Emeka", ["FWD"], "Competitive", 3.9, 16, 16, false),
-  P("ryan", "Ryan", ["GK"], "Casual", 4.8, 4, 5, false),
-  P("tyler", "Tyler", ["MID"], "Intermediate", 2.3, 11, 12, false),
-  P("omar", "Omar", ["DEF", "MID"], "Intermediate", 3.6, 13, 15, false),
-  P("leo", "Leo", ["FWD"], "Casual", 1.4, 6, 9, false),
-  P("sam", "Sam", ["MID"], "Intermediate", 6.2, 9, 10, false),
+  P("chris", "Chris", ["GK"], "Intermediate", 2.1, 9, 10, false, true),
+  P("jamal", "Jamal", ["DEF"], "Competitive", 3.4, 21, 22, false, false),
+  P("wes", "Wes", ["MID"], "Intermediate", 1.7, 8, 9, false, false),
+  P("daniel", "Daniel", ["FWD"], "Intermediate", 4.0, 12, 14, false, false),
+  P("ali", "Ali", ["MID", "DEF"], "Casual", 2.6, 5, 6, false, false),
+  P("marcus", "Marcus", ["DEF"], "Intermediate", 5.5, 10, 13, false, false),
+  P("emeka", "Emeka", ["FWD"], "Competitive", 3.9, 16, 16, false, false),
+  P("ryan", "Ryan", ["GK"], "Casual", 4.8, 4, 5, false, true),
+  P("tyler", "Tyler", ["MID"], "Intermediate", 2.3, 11, 12, false, false),
+  P("omar", "Omar", ["DEF", "MID"], "Intermediate", 3.6, 13, 15, false, true),
+  P("leo", "Leo", ["FWD"], "Casual", 1.4, 6, 9, false, false),
+  P("sam", "Sam", ["MID"], "Intermediate", 6.2, 9, 10, false, true),
 ];
 
 const spot = (pid: string, players: Record<string, Player>): Spot => ({ pid, pos: players[pid].positions[0] });
 
 function makeGame(
   players: Record<string, Player>,
-  g: Omit<Game, "needs" | "roster" | "waitlist" | "offer" | "fillQueue" | "log" | "size"> & {
+  g: Omit<Game, "needs" | "roster" | "waitlist" | "offer" | "fillQueue" | "log" | "size" | "style" | "rotation" | "durationMin"> & {
+    style?: Style;
+    rotation?: Rotation;
+    durationMin?: number;
     roster: string[];
     waitlist?: string[];
     want?: Partial<Needs>;
@@ -118,6 +138,10 @@ function makeGame(
     offer: null,
     fillQueue: [],
     log: g.log ?? [],
+    style: g.style ?? "positions",
+    rotation: g.rotation ?? "keeper",
+    switchAt: g.switchAt,
+    durationMin: g.durationMin ?? 60,
   };
 }
 
@@ -136,6 +160,9 @@ export function seedState(): State {
       organizerId: ME,
       roster: [ME, "marco", "kevin", "sebastian", "rafa", "jorge", "nico", "pablo", "mateo", "julian"],
       want: { GK: 1, DEF: 1 },
+      style: "hybrid",
+      rotation: "keeper",
+      switchAt: switchTime("Sun", "8:30 AM", { deadline: "night", custom: "" }),
       log: [{ t, kind: "post", text: B("You posted the game to your crew.", "Publicaste el partido para tu grupo.") }],
     }),
     makeGame(players, {
@@ -163,8 +190,10 @@ export function seedState(): State {
       format: "5v5",
       level: "Competitive",
       organizerId: "rafa",
-      roster: ["rafa", "kevin", "tomas", "wes", "emeka", "jamal", "leo", "pablo"],
-      want: { DEF: 1 },
+      roster: ["rafa", "kevin", "wes", "emeka", "jamal", "leo", "pablo", "omar"],
+      style: "rotating",
+      rotation: "keeper",
+      durationMin: 60,
     }),
     makeGame(players, {
       id: "sat-11s",
@@ -189,6 +218,9 @@ export function seedState(): State {
       organizerId: "tyler",
       roster: ["tyler", "wes", "daniel", "ali", "marcus", "omar", "leo", "sam", "ryan", "emeka", "chris", "andres", "santi", "felipe", "beto", "ivan"],
       waitlist: ["julian"],
+      style: "rotating",
+      rotation: "free",
+      durationMin: 90,
     }),
   ];
   return { players, games, toasts: [], seq: 1 };
@@ -249,7 +281,26 @@ function fillOrder(g: Game, s: State): string[] {
 export type Action =
   | { type: "load"; state: State }
   | { type: "reset" }
-  | { type: "create"; t: number; game: { title: string; day: string; time: string; place: string; format: string; level: string; needs: Needs; have?: number }; id: string }
+  | {
+      type: "create";
+      t: number;
+      id: string;
+      game: {
+        title: string;
+        day: string;
+        time: string;
+        place: string;
+        format: string;
+        level: string;
+        needs: Needs;
+        have?: number;
+        style?: Style;
+        rotation?: Rotation;
+        switchAt?: number;
+        durationMin?: number;
+      };
+    }
+  | { type: "switch"; id: string; t: number }
   | { type: "startFill"; id: string; t: number }
   | { type: "fillNext"; id: string; t: number }
   | { type: "join"; id: string; t: number }
@@ -257,7 +308,7 @@ export type Action =
   | { type: "drop"; id: string; t: number; pid?: string }
   | { type: "respond"; id: string; t: number; accept: boolean }
   | { type: "delete"; id: string }
-  | { type: "profile"; positions: Pos[]; skill: Skill }
+  | { type: "profile"; positions: Pos[]; skill: Skill; goalOk?: boolean }
   | { type: "crew"; pid: string }
   | { type: "toast"; text: L; sub?: L }
   | { type: "dismiss"; toastId: number };
@@ -311,7 +362,10 @@ export function reducer(s: State, a: Action): State {
     case "dismiss":
       return { ...s, toasts: s.toasts.filter((x) => x.id !== a.toastId) };
     case "profile":
-      return { ...s, players: { ...s.players, [ME]: { ...s.players[ME], positions: a.positions, skill: a.skill } } };
+      return {
+        ...s,
+        players: { ...s.players, [ME]: { ...s.players[ME], positions: a.positions, skill: a.skill, goalOk: a.goalOk ?? s.players[ME].goalOk } },
+      };
     case "crew": {
       const p = s.players[a.pid];
       if (!p || p.id === ME) return s;
@@ -342,13 +396,40 @@ export function reducer(s: State, a: Action): State {
         level: a.game.level,
         organizerId: ME,
         roster,
-        needs: fitNeeds(a.game.needs, size - roster.length),
+        // Rotating games have no position slots: every open spot is "any position".
+        needs: fitNeeds(a.game.style === "rotating" ? emptyNeeds() : a.game.needs, size - roster.length),
         waitlist: [],
         offer: null,
         fillQueue: [],
+        style: a.game.style ?? "positions",
+        rotation: a.game.rotation ?? "keeper",
+        switchAt: a.game.style === "hybrid" ? a.game.switchAt : undefined,
+        durationMin: a.game.durationMin ?? 60,
         log: [{ t: a.t, kind: "post", text: B("You posted the game. Tap “Send to crew” to start filling it.", "Publicaste el partido. Toca “Enviar a mi grupo” para empezar a llenarlo.") }],
       };
       return withToast({ ...s, games: [g, ...s.games] }, B("Game posted", "Partido publicado"), B("Now send it to your crew.", "Ahora envíalo a tu grupo."));
+    }
+
+    case "switch": {
+      const g = s.games.find((x) => x.id === a.id);
+      if (!g || g.style !== "hybrid") return s;
+      // Unfilled position spots open to anyone.
+      const reserved = g.needs.GK + g.needs.DEF + g.needs.MID + g.needs.FWD;
+      const needs = { ...emptyNeeds(), ANY: g.needs.ANY + reserved };
+      const hasKeeper = g.roster.some((r) => r.pos === "GK");
+      let next: Game;
+      let toast: [L, L];
+      if (g.rotation === "free") {
+        next = log({ ...g, needs, style: "rotating", switchAt: undefined }, a.t, "info", B("Deadline reached. Switched to free rotation, so open spots are open to anyone.", "Llegó la hora límite. Pasamos a rotación libre: los cupos quedan abiertos para cualquiera."));
+        toast = [B("Switched to free rotation", "Cambio a rotación libre"), B("Open spots are open to anyone now.", "Los cupos ahora son para cualquiera.")];
+      } else if (!hasKeeper) {
+        next = log({ ...g, needs, style: "rotating", rotation: "keeper", switchAt: undefined }, a.t, "info", B("Nobody claimed keeper by the deadline. Switched to rotating keepers, and open spots are open to anyone.", "Nadie tomó el arco antes de la hora límite. Pasamos a portero rotativo y los cupos quedan abiertos para cualquiera."));
+        toast = [B("Switched to rotating keepers", "Cambio a portero rotativo"), B("Everyone takes a turn in goal.", "Todos tapan un rato.")];
+      } else {
+        next = log({ ...g, needs, style: "positions", switchAt: undefined }, a.t, "info", B(reserved ? "Deadline reached. You have a keeper, so it stays set positions; the other open spots are now open to anyone." : "Deadline reached. You have a keeper, so it stays set positions.", reserved ? "Llegó la hora límite. Ya hay portero, así que siguen las posiciones fijas; los demás cupos quedan abiertos para cualquiera." : "Llegó la hora límite. Ya hay portero, así que siguen las posiciones fijas."));
+        toast = [B("Keeper's covered", "Ya hay portero"), B("Positions stay set for this game.", "Las posiciones se mantienen en este partido.")];
+      }
+      return withToast(updateGame(s, a.id, () => next), toast[0], toast[1]);
     }
 
     case "startFill":
@@ -491,5 +572,5 @@ export function reducer(s: State, a: Action): State {
   }
 }
 
-export const STORAGE_KEY = "fs-demo-v2";
+export const STORAGE_KEY = "fs-demo-v3";
 export type { NeedKey };

@@ -7,6 +7,8 @@ import { WaitlistForm } from "./WaitlistForm";
 import { FORMATS } from "@/lib/content";
 import { describeNeeds, emptyNeeds, fitNeeds } from "@/lib/positions";
 import { PositionNeeds } from "./PositionNeeds";
+import { GameStylePicker } from "./GameStylePicker";
+import { defaultStyle, formatWhen, styleBadge, styleLine, switchTime } from "@/lib/rotation";
 import { saveDraft } from "@/lib/demo/draft";
 import { track } from "@/lib/track";
 import { useLang } from "@/lib/i18n";
@@ -121,12 +123,17 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
   const size = FORMATS.find((f) => f.id === format)!.size;
   const [have, setHave] = useState(12);
   const [needSpec, setNeedSpec] = useState(() => ({ ...emptyNeeds(), GK: 1 }));
+  const [styleChoice, setStyleChoice] = useState(defaultStyle);
   const [level, setLevel] = useState("All levels");
   const [copied, setCopied] = useState(false);
 
   const inCount = Math.min(have, size);
   const need = Math.max(0, size - inCount);
-  const needs = fitNeeds(needSpec, need);
+  const rotating = styleChoice.style === "rotating";
+  const needs = fitNeeds(rotating ? emptyNeeds() : needSpec, need);
+  const switchAt = styleChoice.style === "hybrid" ? switchTime(day, time, styleChoice) : null;
+  const switchLabel = switchAt ? formatWhen(switchAt, lang) : null;
+  const badge = styleBadge(styleChoice.style, styleChoice.rotation);
 
   const message = useMemo(() => {
     const lines = [
@@ -135,6 +142,7 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
         ? `${format} · ${inCount}/${size} confirmados · ${need > 0 ? `Faltan ${need}` : "Lleno, lista de espera abierta"}`
         : `${format} · ${inCount}/${size} in · ${need > 0 ? `Need ${need}` : "Full, waitlist open"}`,
       ...(need > 0 ? [`${tr("Looking for", "Buscamos")}: ${describeNeeds(needs, { lang })}`] : []),
+      ...[styleLine(styleChoice.style, styleChoice.rotation, switchLabel, lang)].filter((x): x is string => !!x),
       level !== "All levels" ? `${tr("Level", "Nivel")}: ${levelLabel(level)}` : tr("All levels welcome", "Todos los niveles son bienvenidos"),
       "",
       tr(
@@ -143,7 +151,7 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
       ),
     ];
     return lines.join("\n");
-  }, [name, day, time, place, format, inCount, size, need, needs, level, lang]);
+  }, [name, day, time, place, format, inCount, size, need, needs, level, lang, styleChoice, switchLabel]);
 
   async function copy() {
     try {
@@ -275,7 +283,14 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
                 </button>
               </div>
             </div>
-            <PositionNeeds total={need} value={needSpec} onChange={setNeedSpec} idPrefix={`${uid}-need`} />
+            <GameStylePicker
+              value={styleChoice}
+              onChange={setStyleChoice}
+              day={day}
+              time={time}
+              idPrefix={`${uid}-style`}
+              positions={<PositionNeeds total={need} value={needSpec} onChange={setNeedSpec} idPrefix={`${uid}-need`} />}
+            />
             <div>
               <label htmlFor={`${uid}-level`} className="mb-1.5 block text-sm font-medium">
                 {tr("Skill level", "Nivel")}
@@ -315,7 +330,20 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
             <a
               href="/app/#/games"
               onClick={() => {
-                saveDraft({ title: name, day, time, place, format, have: inCount, needs, level });
+                saveDraft({
+                  title: name,
+                  day,
+                  time,
+                  place,
+                  format,
+                  have: inCount,
+                  needs,
+                  level,
+                  style: styleChoice.style,
+                  rotation: styleChoice.rotation,
+                  switchAt: switchAt ?? undefined,
+                  durationMin: styleChoice.durationMin,
+                });
                 track("app_demo_open", { location: "post_builder" });
               }}
               className="flex items-center justify-between gap-3 rounded-xl border-2 border-accent bg-tint p-4 font-semibold text-accent hover:brightness-95"
@@ -389,6 +417,13 @@ function PostGameBuilder({ onClose, source }: { onClose: () => void; source: str
               <li className="flex justify-between">
                 <span className="text-muted">{tr("Level", "Nivel")}</span>
                 <span className="font-medium">{levelLabel(level)}</span>
+              </li>
+              <li className="flex justify-between gap-3">
+                <span className="text-muted">{tr("Style", "Estilo")}</span>
+                <span className="text-right font-medium">
+                  {badge ? (lang === "es" ? badge.es : badge.en) : tr("Set positions", "Posiciones fijas")}
+                  {switchLabel ? <span className="block text-xs text-muted">{tr("until", "hasta")} {switchLabel}</span> : null}
+                </span>
               </li>
               <li className="flex justify-between">
                 <span className="text-muted">{tr("Who sees it first", "Quién lo ve primero")}</span>

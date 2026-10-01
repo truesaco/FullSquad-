@@ -8,6 +8,8 @@
 drop trigger if exists on_auth_user_created on auth.users;
 drop function if exists public.handle_new_user() cascade;
 drop function if exists public.create_game(text, timestamptz, text, text, text, int, int, int, int, text) cascade;
+drop function if exists public.create_game(text, timestamptz, text, text, text, int, int, int, int, text, text, text, timestamptz, int) cascade;
+drop function if exists public._need(public.games, text) cascade;
 drop function if exists public.join_game(uuid) cascade;
 drop function if exists public.leave_game(uuid) cascade;
 drop function if exists public.remove_player(uuid, uuid) cascade;
@@ -25,6 +27,7 @@ create table public.profiles (
   positions text[] not null default '{MID}'
     check (positions <@ array['GK', 'DEF', 'MID', 'FWD'] and cardinality(positions) between 1 and 4),
   skill text not null default 'Intermediate' check (skill in ('Casual', 'Intermediate', 'Competitive')),
+  goal_ok boolean not null default false, -- happy to take a turn in goal
   created_at timestamptz not null default now()
 );
 
@@ -43,6 +46,11 @@ create table public.games (
   need_mid int not null default 0 check (need_mid >= 0),
   need_fwd int not null default 0 check (need_fwd >= 0),
   notes text check (char_length(notes) <= 280),
+  -- Game style: set positions, rotating, or positions until switch_at and then rotating.
+  style text not null default 'positions' check (style in ('positions', 'rotating', 'hybrid')),
+  rotation text not null default 'keeper' check (rotation in ('keeper', 'free')),
+  switch_at timestamptz,
+  duration_min int not null default 60 check (duration_min between 20 and 180),
   cancelled boolean not null default false,
   created_at timestamptz not null default now(),
   check (need_gk + need_def + need_mid + need_fwd <= size - 1)
@@ -82,6 +90,16 @@ create trigger on_auth_user_created
   for each row execute function public.handle_new_user();
 
 -- ---------- Matching logic ----------
+-- Reserved spots for a position. Rotating games have none, and "positions, then rotate"
+-- games drop them once switch_at has passed, so the deadline needs no scheduled job.
+create function public._need(g public.games, p text)
+returns int language sql stable set search_path = public as $$
+  select case
+    when g.style = 'rotating' or (g.style = 'hybrid' and g.switch_at is not null and now() >= g.switch_at) then 0
+    when p = 'GK' then g.need_gk when p = 'DEF' then g.need_def when p = 'MID' then g.need_mid else g.need_fwd
+  end
+$$;
+
 -- Which open spot can a player who plays `player_positions` take? Their positions first, then "any".
 create function public._claim_slot(g public.games, player_positions text[])
 returns text language plpgsql stable set search_path = public as $$
@@ -98,13 +116,13 @@ begin
   end if;
 
   foreach p in array array['GK', 'DEF', 'MID', 'FWD'] loop
-    need := case p when 'GK' then g.need_gk when 'DEF' then g.need_def when 'MID' then g.need_mid else g.need_fwd end;
+    need := _need(g, p);
     select count(*) into taken from signups where game_id = g.id and status = 'in' and slot = p;
     specific_left := specific_left + greatest(0, need - taken);
   end loop;
 
   foreach p in array player_positions loop
-    need := case p when 'GK' then g.need_gk when 'DEF' then g.need_def when 'MID' then g.need_mid else g.need_fwd end;
+    need := _need(g, p);
     select count(*) into taken from signups where game_id = g.id and status = 'in' and slot = p;
     if need - taken > 0 then
       return p;
@@ -144,7 +162,8 @@ end $$;
 -- ---------- Actions (the app calls these; tables are read-only to users) ----------
 create function public.create_game(
   p_title text, p_starts_at timestamptz, p_place text, p_format text, p_level text,
-  p_need_gk int, p_need_def int, p_need_mid int, p_need_fwd int, p_notes text
+  p_need_gk int, p_need_def int, p_need_mid int, p_need_fwd int, p_notes text,
+  p_style text default 'positions', p_rotation text default 'keeper', p_switch_at timestamptz default null, p_duration_min int default 60
 )
 returns uuid language plpgsql security definer set search_path = public as $$
 declare
@@ -157,9 +176,13 @@ begin
   if v_size is null then raise exception 'Unknown format.'; end if;
   select positions into my_positions from profiles where id = me;
 
-  insert into games (organizer_id, title, starts_at, place, format, size, level, need_gk, need_def, need_mid, need_fwd, notes)
+  if p_style = 'hybrid' and p_switch_at is null then raise exception 'Pick when the game switches to rotating.'; end if;
+
+  insert into games (organizer_id, title, starts_at, place, format, size, level, need_gk, need_def, need_mid, need_fwd, notes,
+                     style, rotation, switch_at, duration_min)
   values (me, trim(p_title), p_starts_at, trim(p_place), p_format, v_size, p_level,
-          greatest(0, p_need_gk), greatest(0, p_need_def), greatest(0, p_need_mid), greatest(0, p_need_fwd), nullif(trim(p_notes), ''))
+          greatest(0, p_need_gk), greatest(0, p_need_def), greatest(0, p_need_mid), greatest(0, p_need_fwd), nullif(trim(p_notes), ''),
+          p_style, p_rotation, case when p_style = 'hybrid' then p_switch_at end, p_duration_min)
   returning id into new_id;
 
   -- The organizer is in, on an "any position" spot, so the positions they asked for stay open.
@@ -179,6 +202,9 @@ begin
   if me is null then raise exception 'Please sign in first.'; end if;
   select * into g from games where id = p_game for update; -- one join at a time per game
   if not found or g.cancelled then raise exception 'This game is not available.'; end if;
+
+  -- If a deadline has passed, people already waiting move up first (fair order).
+  perform _promote(p_game);
 
   select status into current_status from signups where game_id = p_game and player_id = me;
   if found then return current_status; end if;
@@ -250,12 +276,13 @@ create policy "Signed-in users can see signups" on public.signups for select to 
 revoke all on function public._claim_slot(public.games, text[]) from public, anon, authenticated;
 revoke all on function public._promote(uuid) from public, anon, authenticated;
 revoke all on function public.handle_new_user() from public, anon, authenticated;
-revoke all on function public.create_game(text, timestamptz, text, text, text, int, int, int, int, text) from public, anon;
+revoke all on function public.create_game(text, timestamptz, text, text, text, int, int, int, int, text, text, text, timestamptz, int) from public, anon;
+revoke all on function public._need(public.games, text) from public, anon, authenticated;
 revoke all on function public.join_game(uuid) from public, anon;
 revoke all on function public.leave_game(uuid) from public, anon;
 revoke all on function public.remove_player(uuid, uuid) from public, anon;
 revoke all on function public.cancel_game(uuid) from public, anon;
-grant execute on function public.create_game(text, timestamptz, text, text, text, int, int, int, int, text) to authenticated;
+grant execute on function public.create_game(text, timestamptz, text, text, text, int, int, int, int, text, text, text, timestamptz, int) to authenticated;
 grant execute on function public.join_game(uuid) to authenticated;
 grant execute on function public.leave_game(uuid) to authenticated;
 grant execute on function public.remove_player(uuid, uuid) to authenticated;

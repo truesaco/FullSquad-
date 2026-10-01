@@ -5,6 +5,7 @@ import { Avatar, RosterMeter } from "@/components/ui";
 import { ME, OFFER_SECONDS, isFull, name, posCounts, type Game, DAY_ES, LEVEL_ES, TITLE_ES, type Player, type State } from "@/lib/demo/model";
 import { POSITIONS, posName, type Pos } from "@/lib/positions";
 import { useLang } from "@/lib/i18n";
+import { formatWhen, styleBadge } from "@/lib/rotation";
 
 /** Display helpers for demo data in the current language. */
 export function useFmt() {
@@ -39,6 +40,20 @@ export function NeedChips({ g, mine = [] }: { g: Game; mine?: Pos[] }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+/** Badge for rotating / "positions, then rotate" games. */
+export function StyleTag({ g }: { g: Game }) {
+  const { t, tr, lang } = useLang();
+  const badge = styleBadge(g.style, g.rotation);
+  if (!badge) return null;
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-[#fbe3e0] px-2.5 py-0.5 text-xs font-bold text-[#8f2a22] dark:bg-[#4a1e1a] dark:text-[#f3b0a9]">
+      <Icon name={g.style === "hybrid" ? "clock" : "refresh"} className="size-3.5" strokeWidth={2.5} />
+      {t(badge)}
+      {g.style === "hybrid" && g.switchAt ? <span className="font-semibold"> · {tr("until", "hasta")} {formatWhen(g.switchAt, lang)}</span> : null}
+    </span>
   );
 }
 
@@ -93,7 +108,8 @@ export function GameCard({ g, mine = [] }: { g: Game; mine?: Pos[] }) {
         </p>
       </div>
       <RosterMeter filled={g.roster.length} total={g.size} size="sm" className="mt-2" />
-      <div className="mt-3">
+      <div className="mt-3 flex flex-wrap items-center gap-1.5">
+        <StyleTag g={g} />
         <NeedChips g={g} mine={mine} />
       </div>
       {g.organizerId !== ME ? <p className="mt-3 text-xs text-muted">

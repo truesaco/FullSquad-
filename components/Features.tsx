@@ -188,8 +188,8 @@ const FEATURES: { n: string; title: L; body: L; metric: L; icon: IconName; visua
     n: "02",
     title: { en: "Position & skill matching", es: "Emparejamiento por posición y nivel" },
     body: {
-      en: "Toggle the positions you need (keeper, defender, midfielder, forward) or leave it open to anyone. Matching uses position, skill, distance, and attendance history, so each spot reaches players who actually fit it.",
-      es: "Activa las posiciones que necesitas (portero, defensa, mediocampista, delantero) o déjalo abierto a cualquiera. El emparejamiento usa posición, nivel, distancia e historial de asistencia, así cada cupo le llega a quien de verdad encaja.",
+      en: "Toggle the positions you need (keeper, defender, midfielder, forward), leave it open to anyone, or play rotating with a fair keeper schedule. You can even hold a keeper spot until a deadline, then switch to rotating. Matching uses position, skill, distance, and attendance history.",
+      es: "Activa las posiciones que necesitas (portero, defensa, mediocampista, delantero), déjalo abierto a cualquiera o juega rotativo con un turno justo de porteros. Incluso puedes reservar el arco hasta una hora límite y luego pasar a rotación. El emparejamiento usa posición, nivel, distancia e historial de asistencia.",
     },
     metric: { en: "4 signals", es: "4 señales" },
     icon: "sliders",
