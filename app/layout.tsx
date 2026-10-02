@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   title: SITE.title,
   description: SITE.description,
   applicationName: SITE.name,
+  // Pre-launch: keep the site out of search results. Remove at launch.
+  robots: { index: false, follow: false, googleBot: { index: false, follow: false } },
   manifest: "/manifest.webmanifest?v=2",
   // "?v=2" makes browsers drop the old (pre-rebrand) icon they cached.
   icons: {
