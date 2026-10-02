@@ -49,6 +49,9 @@ The waitlist form only saves submissions once the site is deployed on Netlify. L
 
 ## Things to edit before launch
 
+The site is currently **hidden from search engines** (noindex meta tag, `X-Robots-Tag` header in `netlify.toml`, and a robots.txt that disallows everything). At public launch, remove the `robots` line in `app/layout.tsx`, the `X-Robots-Tag` header, and restore `app/robots.ts` to allow crawling.
+
+
 | What | Where |
 |---|---|
 | Contact email, social links, site URL | `lib/site.ts` |

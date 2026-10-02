@@ -17,3 +17,5 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Frame-Options = "DENY"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    # Pre-launch: keep every page out of search engines. Remove at launch.
+    X-Robots-Tag = "noindex, nofollow"
